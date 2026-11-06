@@ -476,7 +476,7 @@ function openModal(id){
     body=`${top}
     <div class="mb"><div class="row"><div style="flex:1"><h2>${esc(v.title)}</h2><div class="by">${esc(v.brand)}${v.dir?" · directed by "+esc(v.dir):""}</div></div>${starBtn(v)}</div>
     <div class="facts"><span>${esc(CATS[v.cat]||v.cat)}</span><span>${esc(v.year)}</span><span>≈ ${esc(v.len)}</span>${(v.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join("")}</div>
-    ${v.note?`<div class="steal"><small>STEAL THIS</small><p>${esc(v.note)}</p></div>`:v.live?`<div class="steal"><small>LIVE FIND</small><p>Found on YouTube for “${esc(v.q)}”${v.views?` · ${v.views.toLocaleString()} views`:""}. Star it if it's good. The feed will look for more like it.</p></div>`:""}
+    ${v.note?`<div class="steal"><small>STEAL THIS</small><p>${esc(v.note)}</p></div>`:v.live?`<div class="steal"><small>LIVE FIND</small><p>${v.kind==="channel"?"Found on YouTube, "+esc(v.q)+" (a channel from your swipe file)":"Found on YouTube for “"+esc(v.q)+"”"}${v.views?` · ${v.views.toLocaleString()} views`:""}. Star it if it's good. The feed will look for more like it.</p></div>`:""}
     <div class="acts">
       ${v.yt?`<a class="btn" href="https://www.youtube.com/watch?v=${v.yt}" target="_blank" rel="noopener">Open on YouTube</a>`:v.vimeo?`<a class="btn" href="https://vimeo.com/${v.vimeo}" target="_blank" rel="noopener">Open on Vimeo</a>`:direct?`<a class="btn pri" href="${esc(direct)}" target="_blank" rel="noopener">▶ Watch</a>`:`<a class="btn pri" href="${ytq(v)}" target="_blank" rel="noopener">▶ Find on YouTube</a>`}
       <a class="btn" href="${vimq(v)}" target="_blank" rel="noopener">Vimeo</a>
@@ -562,7 +562,7 @@ document.addEventListener("click",e=>{
   const sc=t.closest("[data-scat]");if(sc){savedCat=sc.dataset.scat;renderSaved();return}
   const mo=t.closest("[data-more]");if(mo){const v=findV(mo.dataset.more);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.min((prefs.boost[tg]||0)+1,6));prefs.boost["cat:"+v.cat]=Math.min((prefs.boost["cat:"+v.cat]||0)+1,6);savePrefs();toast("Got it. More like this coming up.");closeModal();if(view==="feed")renderFeed();return}
   const hd=t.closest("[data-hide]");if(hd){prefs.hidden.push(hd.dataset.hide);const v=findV(hd.dataset.hide);
-    if(v&&v.live&&v.brand){blockedCh.add(v.brand);LS.set("dr_blockch",[...blockedCh]);livePool=livePool.filter(x=>x.brand!==v.brand);LS.set("dr_livepool3",livePool)}(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
+    if(v&&v.live&&v.brand){blockedCh.add(v.brand);LS.set("dr_blockch",[...blockedCh]);livePool=livePool.filter(x=>x.brand!==v.brand);LS.set("dr_livepool4",livePool)}(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
   const op=t.closest("[data-open]");if(op){flushNote();openModal(op.dataset.open);return}
   if(t.closest("a"))return;
   const card=t.closest(".card,.mini");if(card&&!t.closest(".modal")){openModal(card.dataset.id)}
@@ -580,40 +580,60 @@ function setSync(txt,ok){const s=$("#sync");s.textContent=txt;s.classList.toggle
    LIVE DISCOVER: fresh videos straight from YouTube, endlessly
    ============================================================ */
 const YT_KEY="AIzaSyD3dcKKVF98Py7T6R0F7JyJY7UzCHx69T0";
-const LIVE_Q=["cinematic brand film","luxury fashion film","Nike commercial","Apple ad","adidas campaign film","perfume commercial cinematic",
- "car commercial cinematic","AI generated commercial","Sora short film official","Veo 3 commercial","Runway AI short film","Kling AI commercial",
- "AI generated ad campaign","music video one take","streetwear campaign film","fashion film","spec commercial cinematic","product commercial cinematic",
- "award winning short film","Cannes Lions film","Super Bowl commercial 2026","sneaker commercial","watch commercial cinematic","tech launch film",
- "cinematic game trailer","energy drink commercial","coffee commercial cinematic","Mercedes-Benz commercial","Porsche film","Jordan brand film",
- "Gucci campaign film","Prada film","Chanel film","Dior campaign film","Louis Vuitton film","Rolex film","Red Bull film","Puma commercial",
- "New Balance campaign","Aimé Leon Dore","Highsnobiety film","Palantir film","Anduril film","PlayStation commercial","Xbox commercial",
- "Samsung Galaxy ad","Google Pixel ad","Spotify ad","beauty commercial cinematic","skincare commercial","tourism board film",
- "hotel brand film","football commercial","basketball commercial","F1 commercial","stop motion commercial","animated commercial",
- "one take commercial","split screen commercial","film grain fashion campaign","brand anthem film","manifesto film brand","directors cut commercial",
- "Vimeo staff pick short film","short film staff pick","AI generated music video official","AI brand film","sports brand film","Heineken commercial",
- "Coca-Cola commercial","IKEA ad","Volvo commercial","BMW film","Audi commercial","Hermès film","Balenciaga campaign","Bottega Veneta film",
- "Arc'teryx film","Patagonia film","Lego commercial","Netflix promo","HBO promo","A24 trailer","Apple Watch ad","iPhone ad","Mac ad"];
-let livePool=LS.get("dr_livepool3",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
+const SWIPE_YT=["OumZxTdMq_c","FKwcXt3JIaU","QWaWsgBbFsA","wNtxgxYY7sI","U_2R7T4-78E","ZUG9qYTJMsI","TGLwbMX0o5Y","j6w_Gl9ADGY","hWMnbJJpeZc","01aV_PbiT30",
+ "THd6T_TlASM","YjS_2Yq9Y94","4SwhzMHR0PQ","0BpJy5lmdws","0IOsk2Vlc4o","9Jar2XkBboo","wyKBSy6rgdY","yWyiuYBKA38","IAPQcXzYUro","2AzZB3hM7_A",
+ "0w6wUqWU3yU","IFkHadvj4DI","GwVPBv6Egho","10hAZomrOlc","Uj6G1C6c0uw","QBwzN4v1vA0","9ofQZfvhtkU","D9mL-JTg_qQ","OAsWOH60QGY","myG8hq1Mk00",
+ "6mIvD-GN-p4","zAhcIAx95OM","HCYFpIk08YI","SZ_eZGmmpQU"];   // the user's swipe file: the taste reference
+const LIVE_Q=["Aimé Leon Dore film","Harrison Boyce director","Tom Gould director film","Cole Kush Jordan","Highsnobiety film","Curate Films",
+ "Group Thrpy film","Sophia Ray director","Jordan brand film","Nike basketball film","New Balance film","Kith campaign film","Stüssy film",
+ "Carhartt WIP film","Salomon film","Arc'teryx film","Timberland film","Stone Island film","Moncler film","Loewe film","Jacquemus film",
+ "Bottega Veneta film","Palantir film","Anduril film","PlayStation brand film","Squarespace brand film","Nothing phone film","Teenage Engineering film",
+ "Rivian film","Polestar film","Porsche film","fashion film 16mm","streetwear campaign film","editorial fashion film","menswear campaign film",
+ "sneaker campaign film","basketball brand film","football brand film","tech manifesto film","defense tech film","cinematic launch film",
+ "music video directed by","Charli XCX music video","Tyler the Creator music video","FKA twigs video","Frank Ocean video","Kendrick Lamar music video",
+ "Pulse Films commercial","Iconoclast commercial","Somesuch film","Academy Films commercial","Partizan commercial","Prettybird film","Smuggler commercial",
+ "Object & Animal film","Stink Films commercial","Division Paris film","Caviar commercial","Park Pictures commercial","Biscuit Filmworks commercial"];
+let taste=LS.get("dr_taste",null);
+async function loadTaste(){
+  if(taste&&Date.now()-taste.t<7*864e5)return taste;
+  try{
+    const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=snippet&id="+SWIPE_YT.join(",")+"&key="+YT_KEY)).json();
+    const ch={},tg={},wd={};
+    const STOP=new Set("the a an and of for in on to with by from x feat ft official video film films full hd 4k new music short brand campaign commercial ad".split(" "));
+    (d.items||[]).forEach(it=>{const sn=it.snippet||{};
+      if(sn.channelId)ch[sn.channelId]=decodeEnt(sn.channelTitle||"");
+      (sn.tags||[]).slice(0,15).forEach(t=>{t=t.toLowerCase().trim();if(t.length>2&&t.length<40)tg[t]=(tg[t]||0)+1});
+      decodeEnt(sn.title||"").toLowerCase().replace(/[^a-z0-9à-ÿ' ]/g," ").split(/\s+/).forEach(w=>{if(w.length>3&&!STOP.has(w)&&!/^\d+$/.test(w))wd[w]=(wd[w]||0)+1});
+    });
+    taste={t:Date.now(),channels:Object.entries(ch).map(([id,title])=>({id,title})),
+      tags:Object.entries(tg).sort((a,b)=>b[1]-a[1]).slice(0,40).map(x=>x[0]),
+      words:Object.entries(wd).sort((a,b)=>b[1]-a[1]).slice(0,30).map(x=>x[0])};
+    if(taste.channels.length)LS.set("dr_taste",taste);
+  }catch(e){}
+  return taste;
+}
+
+let livePool=LS.get("dr_livepool4",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
 let liveBusy=null, liveDead=false;
 /* quality gate: only real ads / brand films / music videos / shorts */
 const SLOP=/(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|mukbang|meme|fan ?made|fan edit|parody|recreat|i made|i tried|trying|tier list|\bvs\.?\b|try not to|live stream|livestream|gameplay|walkthrough|lets play|let's play|news|stock|earnings|crypto|giveaway|subscribe|what i eat|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|cover by|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|bts|bloopers|ranked|worst|best of|every .* ad|all .* ads|ads? compilation|\d+ (best|funniest))/i;
 const GOOD=/(commercial|\bads?\b|advert|campaign|brand film|short film|\bfilm\b|spot|official video|music video|trailer|teaser|director'?s cut|launch|anthem|presents|\| apple|introducing|official)/i;
 const BADCAT=new Set(["17","19","20","25","26","27","28","29"]); // sports clips, travel vlogs, gaming, news, howto, education, science, activism
 let blockedCh=new Set(LS.get("dr_blockch",[]));
-function qualityOK(it,x,q){
+function qualityOK(it,x,q,kind){
   const sn=it.snippet||{}, t=decodeEnt(sn.title||""), ch=decodeEnt(sn.channelTitle||""), desc=(x.snippet&&x.snippet.description||"").slice(0,400);
   const sec=isoSec(x.contentDetails.duration), views=+(x.statistics&&x.statistics.viewCount)||0;
-  if(sec<30||sec>240)return false;                                   // 30s – 4min
+  if(sec<30||sec>(kind==="channel"?360:240))return false;          // 30s – 4min (6 for trusted channels)
   if(x.contentDetails.definition!=="hd")return false;                // HD only
   const pw=+(x.player&&x.player.embedWidth)||0, ph=+(x.player&&x.player.embedHeight)||0;
   if(!pw||!ph||pw/ph<1.3)return false;                               // widescreen only: no vertical, square or unknown shape
   if(SLOP.test(t)||/#shorts/i.test(desc))return false;
   if(x.snippet&&BADCAT.has(x.snippet.categoryId))return false;
   if(blockedCh.has(ch))return false;
-  if(views<5000)return false;                                        // some proof people cared
+  if(views<(kind==="channel"?500:5000))return false;                                        // some proof people cared
   const brandWord=(q.split(" ")[0]||"").toLowerCase();
   const fromBrand=brandWord.length>2&&ch.toLowerCase().includes(brandWord);
-  if(!(GOOD.test(t)||fromBrand))return false;                       // must read like an ad / film
+  if(kind!=="channel"&&!(GOOD.test(t)||fromBrand))return false;                       // must read like an ad / film
   return true;
 }
 function liveQuota(){const q=LS.get("dr_livequota",{d:"",n:0});if(q.d!==today){q.d=today;q.n=0}return q}
@@ -621,26 +641,31 @@ const decodeEnt=(()=>{const t=document.createElement("textarea");return s=>{t.in
 function isoSec(d){const m=(d||"").match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);return m?(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0):0}
 const fmtLen=s=>Math.floor(s/60)+":"+pad(s%60);
 function pickQuery(){
-  const top=Object.entries(affinity()).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  if(top.length&&Math.random()<.4){
-    const k=top[Math.floor(Math.random()*top.length)][0];
-    if(k.startsWith("brand:"))return k.slice(6)+" commercial";
-    if(k.startsWith("cat:")){const c=k.slice(4);return {ad:"cinematic commercial",film:"brand film",short:"short film",promo:"launch promo film",ai:"AI generated short film",music:"cinematic music video"}[c]||"brand film"}
-    return k.replace(/-/g," ")+" commercial";
+  const r=Math.random(), rnd=a=>a[Math.floor(Math.random()*a.length)];
+  if(taste&&taste.channels.length&&r<.4){               // more from the channels in your swipe file
+    const c=rnd(taste.channels);return {q:"",channelId:c.id,label:"more from "+c.title,kind:"channel"};
   }
-  let q=LIVE_Q[Math.floor(Math.random()*LIVE_Q.length)];
-  if(Math.random()<.3)q+=" "+(Math.random()<.65?"2026":"2025");
-  return q;
+  if(taste&&taste.tags.length&&r<.6){                   // the topics your swipe file is tagged with
+    const t=rnd(taste.tags.slice(0,25));return {q:t,label:t,kind:"taste"};
+  }
+  const top=Object.entries(affinity()).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(top.length&&r<.75){                                // what you've starred
+    const k=rnd(top)[0];
+    if(k.startsWith("brand:"))return {q:k.slice(6)+" film",label:k.slice(6),kind:"stars"};
+    if(!k.startsWith("cat:"))return {q:k.replace(/-/g," ")+" film",label:k.replace(/-/g," "),kind:"stars"};
+  }
+  const q=rnd(LIVE_Q);return {q,label:q,kind:"taste"};
 }
-function fetchLive(q){
+function fetchLive(qo){
   if(liveBusy)return liveBusy;
   if(liveDead||!YT_KEY)return Promise.resolve(0);
   const quota=liveQuota(); if(quota.n>=80){liveDead=true;return Promise.resolve(0)}
   liveBusy=(async()=>{
     try{
-      q=q||pickQuery();
+      if(!taste)await loadTaste();
+      qo=qo||pickQuery(); const q=qo.q||"";
       const order=["relevance","relevance","viewCount","viewCount","date"][Math.floor(Math.random()*5)];
-      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration=short&safeSearch=moderate&order="+order+"&videoDefinition=high&q="+encodeURIComponent(q+" -shorts -reaction -review")+"&key="+YT_KEY);
+      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration="+(qo.channelId?"any":"short")+"&safeSearch=moderate&order="+order+"&videoDefinition=high"+(qo.channelId?"&channelId="+qo.channelId:"")+"&q="+encodeURIComponent((q?q+" ":"")+"-shorts -reaction -review")+"&key="+YT_KEY);
       quota.n++;LS.set("dr_livequota",quota);
       const j=await r.json();
       if(j.error){if(r.status===403){liveDead=true;console.warn("live discover:",j.error.message)}return 0}
@@ -649,17 +674,17 @@ function fetchLive(q){
       if(!items.length)return 0;
       const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet,player&maxWidth=640&id="+items.map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
       const det={};(d.items||[]).forEach(x=>det[x.id]=x);
-      const tags=q.toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)).slice(0,4);
+      const tags=(qo.label||q).toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)).slice(0,4);
       const out=[];
       items.forEach(it=>{
         const x=det[it.id.videoId]; const sec=x?isoSec(x.contentDetails.duration):0;
-        if(!x||!qualityOK(it,x,q))return;
+        if(!x||!qualityOK(it,x,q,qo.kind))return;
         const sn=it.snippet||{};
         out.push({id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle).slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
-          year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q,views:+(x.statistics&&x.statistics.viewCount)||0});
+          year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q:qo.label||q,kind:qo.kind,views:+(x.statistics&&x.statistics.viewCount)||0});
       });
       for(let i=out.length-1;i>0;i--){const k=Math.floor(Math.random()*(i+1));[out[i],out[k]]=[out[k],out[i]]}
-      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool3",livePool);
+      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool4",livePool);
       return out.length;
     }catch(e){return 0}finally{liveBusy=null}
   })();
@@ -667,7 +692,7 @@ function fetchLive(q){
 }
 function takeLive(){
   const v=livePool.shift();
-  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool3",livePool);
+  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool4",livePool);
     const arr=[...liveSeen];LS.set("dr_liveseen",arr.slice(-3000))}
   if(livePool.length<12)fetchLive();
   return v;

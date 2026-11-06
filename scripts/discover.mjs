@@ -134,7 +134,7 @@ console.log("   credits:", [...credits].slice(0, 12).join(" | "));
 
 console.log("2) second hop: Up next beside the closest first-hop videos");
 const hop1 = [...recs.values()].filter(r => r.c.sec >= 30 && r.c.sec <= 420 && !SLOP.test(r.c.title))
-  .map(r => ({ r, s: sim(r.c.title, r.c.ch) + r.via.size })).sort((a, b) => b.s - a.s).slice(0, 45);
+  .map(r => ({ r, s: sim(r.c.title, r.c.ch) + r.via.size })).sort((a, b) => b.s - a.s).slice(0, 110);
 await pool(hop1, 4, async ({ r }) => { const w = await watch(r.c.yt); if (w) w.related.forEach(c => addRec(c, r.c.title.slice(0, 80), 2, r.root)); });
 
 console.log("3) latest uploads from the reference channels");
@@ -147,7 +147,7 @@ await pool([...seedCh.keys()], 3, async chId => {
 });
 
 console.log("4) searches: the people credited on your references + your themes");
-const qs = [...[...credits].slice(0, 30).map(c => ['"' + c + '"', "more by " + c]), ...LIVE_Q.sort(() => Math.random() - .5).slice(0, 20).map(q => [q, q])];
+const qs = [...[...credits].slice(0, 30).map(c => ['"' + c + '"', "more by " + c]), ...LIVE_Q.sort(() => Math.random() - .5).slice(0, 35).map(q => [q, q])];
 await pool(qs, 2, async ([q, label]) => {
   const page = await get("https://www.youtube.com/results?hl=en&gl=US&sp=EgIQAQ%253D%253D&search_query=" + encodeURIComponent(q));
   const data = jsonAfter(page, "ytInitialData = "); if (!data) return;
@@ -176,15 +176,15 @@ out.sort((a, b) => b.s - a.s);
 // diversity: round-robin across the references each find traces back to (max 30 each),
 // max 6 per channel, max 4 per film/title family
 const byRoot = new Map(); out.forEach(v => { if (!byRoot.has(v.root)) byRoot.set(v.root, []); byRoot.get(v.root).push(v); });
-const roots = [...byRoot.values()].map(l => l.slice(0, 30)).sort((a, b) => b[0].s - a[0].s);
+const roots = [...byRoot.values()].map(l => l.slice(0, 90)).sort((a, b) => b[0].s - a[0].s);
 const perCh = {}, perFam = {}, keep = [];
 const fam = t => terms(t).filter(w => T[w]).slice(0, 2).sort().join(" ") || terms(t).slice(0, 2).join(" ");
-for (let i = 0; i < 30; i++) for (const l of roots) {
+for (let i = 0; i < 90; i++) for (const l of roots) {
   const v = l[i]; if (!v) continue;
   const f = fam(v.title), ch = v.ch.toLowerCase();
-  if ((perCh[ch] || 0) >= 6 || (f && (perFam[f] || 0) >= 4)) continue;
+  if ((perCh[ch] || 0) >= 14 || (f && (perFam[f] || 0) >= 8)) continue;
   perCh[ch] = (perCh[ch] || 0) + 1; if (f) perFam[f] = (perFam[f] || 0) + 1;
-  keep.push({ ...v, s: +(20 - keep.length / 60 + v.s / 10).toFixed(3) });
+  keep.push({ ...v, s: +(30 - keep.length / 60 + v.s / 10).toFixed(3) });
 }
 keep.forEach(v => delete v.root);
 console.log(`done: ${recs.size} candidates → ${keep.length} kept · requests ${stats.req}, failed ${stats.fail}`);

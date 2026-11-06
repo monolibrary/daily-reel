@@ -388,9 +388,14 @@ function more(n){
       const go=()=>loadDiscover().then(k=>k||fetchLive(2)).then(()=>{
         if(cat!=="live"){liveWaiting=false;liveLevel=0;return}
         if(livePool.length){liveWaiting=false;liveLevel=Math.max(0,liveLevel-1);const m=$("#more");if(m)m.textContent="loading more…";more(n-got);return}
-        if(liveDead){liveWaiting=false;$("#more").textContent="YouTube's daily limit is used up, new finds resume tomorrow";return}
+        if(liveDead){
+          liveWaiting=false;
+          const lib=allVideos().filter(v=>(v.yt||v.vimeo)&&!seen[v.id]&&!(prefs.hidden||[]).includes(v.id)&&!document.querySelector('#grid [data-id="'+v.id+'"]')).slice(0,n-got);
+          if(lib.length){$("#grid").insertAdjacentHTML("beforeend",lib.map(cardHTML).join(""));lib.forEach(v=>markSeen(v.id));
+            $("#grid").querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});$("#more").textContent="new batch from YouTube within the hour";return}
+          $("#more").textContent="you've seen everything for now, a new batch lands within the hour";return}
         tries++;liveLevel=Math.min(2,tries>>1);          // nothing yet → widen the net a little each time
-        $("#more").textContent="digging deeper for more like your picks…"+(tries>5&&lastYtErr?" (YouTube: "+lastYtErr.slice(0,90)+")":"");
+        $("#more").textContent="digging deeper for more like your picks…";
         setTimeout(go,tries<8?300:2500);
       });
       go();
@@ -614,11 +619,11 @@ const fmtLen=s=>Math.floor(s/60)+":"+pad(s%60);
 const SEARCH_CAP=70;                     // searches per day (each costs 100 of the key's 10,000 daily units)
 function liveQuota(){const q=LS.get("dr_livequota",{d:"",n:0});if(q.d!==today){q.d=today;q.n=0}return q}
 let liveDead=false, searchDead=false;
-let lastYtErr="";
+let lastYtErr="", keyBlocked=false;
 async function ytGet(path){
   let r;try{r=await fetch("https://www.googleapis.com/youtube/v3/"+path+"&key="+YT_KEY)}catch(e){lastYtErr="can't reach YouTube ("+e.message+")";throw e}
   const j=await r.json().catch(()=>({error:{message:"bad response "+r.status}}));
-  if(j.error){lastYtErr=String(j.error.message||"error "+r.status).replace(/<[^>]+>/g,"");if(r.status===403&&/quota/i.test(j.error.message||""))liveDead=true;throw new Error(lastYtErr)}
+  if(j.error){lastYtErr=String(j.error.message||"error "+r.status).replace(/<[^>]+>/g,"");if(r.status===403&&/quota/i.test(j.error.message||""))liveDead=true;if(/referer|referrer|api key|not valid|blocked/i.test(lastYtErr))liveDead=keyBlocked=true;throw new Error(lastYtErr)}
   lastYtErr="";
   return j;
 }

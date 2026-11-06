@@ -81,6 +81,7 @@ const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutoria
 
 const tw = {}, df = {}, credits = new Set(), seedCh = new Map(), queries = [];
 const recs = new Map(); // yt -> {card, via:Set, hops}
+const trusted = new Set();  // roots that are trusted channels
 function addRec(c, via, hop, root) {
   if (!c.yt || SWIPE.includes(c.yt)) return;
   const r = recs.get(c.yt) || { c, via: new Set(), hop, root, roots: new Set() };
@@ -140,13 +141,24 @@ const hop1 = [...recs.values()].filter(r => r.c.sec >= 30 && r.c.sec <= 420 && !
   .map(r => ({ r, s: sim(r.c.title, r.c.ch) + r.via.size })).sort((a, b) => b.s - a.s).slice(0, 110);
 await pool(hop1, 4, async ({ r }) => { const w = await watch(r.c.yt); if (w) w.related.forEach(c => addRec(c, r.c.title.slice(0, 80), 2, r.root)); });
 
-console.log("3) latest uploads from the reference channels");
-await pool([...seedCh.keys()], 3, async chId => {
-  const page = await get("https://www.youtube.com/channel/" + chId + "/videos?hl=en&gl=US");
+console.log("3) uploads from channels that make/curate this kind of work");
+// reference channels that publish their own films (not reupload / aggregator channels)
+const AUTHORS = /^(aimé leon dore|palantir|justice|dollar shave club|coinbase|criterion|bfi|ea sports fc|away|gibson hazard|fuckinggoodmovies|the world's best ads)$/i;
+// hand-picked: brands, directors, labels and curators in the spirit of the references
+const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland", "@newbalance",
+  "@salomon", "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@onrunning", "@beatsbydre", "@highsnobiety", "@nothing",
+  "@A24", "@NEON", "@mubi", "@FocusFeatures", "@shortoftheweek", "@NOWNESS", "@CharliXCX", "@tylerthecreator", "@FKAtwigs", "@kendricklamar",
+  "@stussy", "@carharttwip", "@kith", "@Corteiz", "@RockstarGamesNOT"].filter(h => !/NOT$/.test(h));
+const sources = [...[...seedCh].filter(([, n]) => AUTHORS.test(n)).map(([id, n]) => ({ url: "https://www.youtube.com/channel/" + id + "/videos?hl=en&gl=US", name: n, root: "ch:" + id })),
+  ...QUALITY.map(h => ({ url: "https://www.youtube.com/" + h + "/videos?hl=en&gl=US", name: "", root: "ch:" + h }))];
+await pool(sources, 3, async src => {
+  const page = await get(src.url);
   const data = jsonAfter(page, "var ytInitialData = ") || jsonAfter(page, "ytInitialData = "); if (!data) return;
+  const name = src.name || (page.match(/<meta property="og:title" content="([^"]+)"/) || [])[1] || src.root.slice(3);
   const list = cards(data).slice(0, 30);
-  list.forEach(c => addRec({ ...c, ch: seedCh.get(chId), chId }, "new from " + seedCh.get(chId), 1, "ch:" + chId));
-  console.log("   ", seedCh.get(chId), "uploads:", list.length);
+  list.forEach(c => addRec({ ...c, ch: name }, "new from " + name, 1, src.root));
+  trusted.add(src.root);
+  console.log("   ", name, "uploads:", list.length);
 });
 
 console.log("4) searches: the people credited on your references + your themes");
@@ -167,16 +179,16 @@ for (const { c, via, hop, root, roots } of recs.values()) {
   if (curated.has(c.yt) || SLOP.test(c.title) || !c.title || generic.has(c.ch)) continue;
   if (c.sec && (c.sec < 30 || c.sec > 420)) continue;          // 30s – 7min
   if (!c.sec && hop !== 1) continue;                           // unknown length only from channel feeds
-  const fromSeedCh = seedNames.has((c.ch || "").toLowerCase());
-  const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short)/i;
-  if (fromSeedCh && hop === 1 && !FILMY.test(c.title) && sim(c.title, c.ch) < .8) continue;   // channel uploads must be films/ads, not talks or recaps
+  const fromTrusted = [...roots].some(x => trusted.has(x));
+  const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short|presents|introducing|collection|ss\d\d|fw\d\d|aw\d\d)/i;
   const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:") && !String(x).startsWith("ch:")).length, n = Math.min(k, 4);
   const byCredit = [...roots].some(x => String(x).startsWith("q:") && terms(String(x).slice(10)).some(w => (c.title + " " + c.ch).toLowerCase().includes(w)));
-  if (!FILMY.test(c.title)) continue;                                  // must be a film, ad, trailer, title sequence, scene or music video
-  if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|clips? channel|compilation)/i.test(c.ch) && !fromSeedCh) continue;
-  // tied to your references: next to 2+ of them, directly next to one AND sharing its subject, or by someone credited on them
-  const ok = n >= 2 || (hop === 1 && m >= .6) || byCredit;
+  if (!FILMY.test(c.title) && !(fromTrusted && c.sec >= 45)) continue;   // a film, ad, trailer, title sequence, scene or music video
+  if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|compilation|rotten tomatoes|one media|kinocheck|fandango|trailer ?(feed|hub|zone)|movie ?trailers? source|filmselect|joblo)/i.test(c.ch)) continue;
+  // tied to your taste: a trusted channel, next to 2+ of your references, or by someone credited on them
+  const ok = fromTrusted || n >= 2 || byCredit;
   if (!ok) continue;
+  const fromSeedCh = fromTrusted;
   if ((c.views || 0) > 25e6 && n < 3 && !fromSeedCh) continue;      // mega-popular stuff YouTube shows beside everything
   const s = m * 1.4 + n * .9 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .5 : 0) + Math.log10((c.views || 0) + 10) * .1 + (c.age < 60 ? .5 : 0);
   out.push({ yt: c.yt, title: c.title.slice(0, 140), ch: (c.ch || "").slice(0, 60), sec: c.sec || 0, views: c.views || 0, age: Math.round(c.age), via: [...via][0], n: via.size, s: +s.toFixed(3), root });

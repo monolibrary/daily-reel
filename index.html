@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Reel — Inspiration Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c; --bg2:#141416; --bg3:#1c1c1f; --line:#2a2a2e; --text:#f2efe9; --mut:#9a978f; --dim:#66645f;
+  --gold:#f5c542; --red:#ff4d3d; --r:14px;
+  --display:'Anton',Impact,sans-serif; --serif:'Instrument Serif',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px}
+
+/* top bar */
+header{position:sticky;top:0;z-index:40;background:rgba(11,11,12,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:18px;height:64px}
+.logo{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.logo b{font-family:var(--display);font-size:26px;letter-spacing:.02em;font-weight:400}
+.logo i{font-family:var(--serif);font-size:22px;color:var(--gold)}
+.rec{width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block;margin-right:2px;animation:blink 1.6s infinite;align-self:center}
+@keyframes blink{50%{opacity:.25}}
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tab{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--mut)}
+.tab.on{background:var(--text);color:#111}
+.tab .n{font-family:var(--mono);font-size:12px;margin-left:6px;opacity:.7}
+.search{flex:1;max-width:380px;margin-left:auto;position:relative}
+.search input{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:10px 16px 10px 38px;color:var(--text);font:inherit;font-size:14px;outline:none}
+.search input:focus{border-color:#555}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.5}
+.refresh{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:var(--gold);color:#111;font-weight:700;font-size:14px;flex:none}
+.refresh:hover{filter:brightness(1.08)}
+.refresh.spin svg{animation:spin .7s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:900px){.refresh span{display:none}.refresh{padding:9px 11px}}
+.sync{font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap}
+.sync.ok{color:#7bd88f}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;color:var(--mut);background:var(--bg2);font-weight:500}
+.chip.on{border-color:var(--text);color:var(--text);background:var(--bg3)}
+
+/* hero */
+.dayhead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:26px 0 14px}
+.dayhead h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,58px);line-height:.95;letter-spacing:-.01em}
+.dayhead h1 em{color:var(--gold)}
+.dayhead .meta{font-family:var(--mono);font-size:12px;color:var(--mut);text-align:right;line-height:1.6}
+.hero{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:34px}
+.hero .side{display:grid;grid-template-rows:repeat(4,1fr);gap:12px}
+.mini{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:8px;cursor:pointer;transition:.15s}
+.mini:hover{border-color:#444}
+.mini .poster{aspect-ratio:16/10;border-radius:9px}
+.mini .poster .pbrand{font-size:20px}
+.mini .poster .ptitle,.mini .poster .badge{display:none}
+.mini .poster .pbrand{left:8%!important;right:8%!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;font-size:19px!important;text-align:left!important;opacity:1!important}
+.mini h4{font-size:14px;font-weight:600;line-height:1.3}
+.mini p{font-size:12px;color:var(--mut);margin-top:4px}
+
+.secthead{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
+.secthead h2{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.03em}
+.secthead .rule{flex:1;height:1px;background:var(--line)}
+.secthead span{font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px 18px}
+.card{position:relative;display:flex;flex-direction:column;gap:10px;cursor:pointer}
+.card .poster{aspect-ratio:16/10;border-radius:var(--r);transition:transform .25s}
+.card:hover .poster{transform:translateY(-3px)}
+.cbody{display:flex;gap:10px;align-items:flex-start}
+.cbody .t{flex:1;min-width:0}
+.cbody h3{font-size:15px;font-weight:600;line-height:1.3}
+.cbody .by{font-size:13px;color:var(--mut);margin-top:3px}
+.cbody .why{font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.star{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg2);transition:.15s}
+.star svg{width:18px;height:18px}
+.star:hover{border-color:var(--gold)}
+.star.on{background:var(--gold);border-color:var(--gold);color:#111}
+.star.pop{animation:pop .35s}
+@keyframes pop{40%{transform:scale(1.25)}}
+
+/* poster art */
+.poster{position:relative;overflow:hidden;isolation:isolate;background:#222}
+.poster::after{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");opacity:.22;mix-blend-mode:overlay;z-index:3;pointer-events:none}
+.poster .lb{position:absolute;left:0;right:0;height:7%;background:#000;z-index:2}
+.poster .lb.t{top:0}.poster .lb.b{bottom:0}
+.poster .pbrand{position:absolute;font-family:var(--display);text-transform:uppercase;line-height:.88;z-index:1;color:rgba(255,255,255,.94);letter-spacing:.01em}
+.poster .ptitle{position:absolute;font-family:var(--serif);font-style:italic;z-index:1;color:rgba(255,255,255,.85);font-size:17px;line-height:1.1}
+.poster .badge{position:absolute;z-index:4;font-family:var(--mono);font-size:10.5px;background:rgba(0,0,0,.72);padding:3px 7px;border-radius:5px;letter-spacing:.04em}
+.poster .badge.len{right:9px;bottom:calc(7% + 8px)}
+.poster .badge.cat{left:9px;top:calc(7% + 8px);background:rgba(255,255,255,.14);backdrop-filter:blur(6px)}
+.poster .badge.new{left:9px;bottom:calc(7% + 8px);background:var(--red);color:#fff;font-weight:600}
+.poster .play{position:absolute;inset:0;display:grid;place-items:center;z-index:4;opacity:0;transition:.2s;background:rgba(0,0,0,.25)}
+.card:hover .play,.mini:hover .play{opacity:1}
+.play i{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center}
+.poster .thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transform:scale(1.02)}
+.poster.hasthumb .pbrand,.poster.hasthumb .ptitle{display:none}
+.poster.hasthumb::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.55))}
+.poster .badge.play-ok{right:9px;top:calc(7% + 8px);background:rgba(255,77,61,.92);color:#fff}
+.player{position:relative;aspect-ratio:16/9;background:#000;border-radius:18px 18px 0 0;overflow:hidden}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.lay0 .pbrand{left:7%;bottom:18%;font-size:clamp(34px,4.2vw,56px);max-width:86%}
+.lay0 .ptitle{left:7%;bottom:12%}
+.lay1 .pbrand{left:0;right:0;top:50%;transform:translateY(-58%);text-align:center;font-size:clamp(40px,5vw,70px)}
+.lay1 .ptitle{left:0;right:0;text-align:center;bottom:13%}
+.lay2 .pbrand{right:-3%;top:4%;font-size:clamp(70px,9vw,130px);opacity:.88;text-align:right}
+.lay2 .ptitle{left:7%;bottom:13%;max-width:60%}
+.lay3 .pbrand{left:7%;top:24%;font-size:clamp(28px,3.2vw,44px)}
+.lay3 .ptitle{left:7%;top:calc(24% + 1.1em + 26px);font-size:20px;max-width:75%}
+.deco{position:absolute;z-index:0;pointer-events:none}
+
+/* spark card */
+.spark .poster{background:#efe9dc;color:#161412}
+.spark .poster::after{opacity:.35;mix-blend-mode:multiply}
+.spark .sp{position:absolute;inset:7% 7%;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.spark .sp small{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:#8a6d1c}
+.spark .sp b{font-family:var(--serif);font-weight:400;font-size:clamp(19px,1.7vw,24px);line-height:1.12}
+.spark .lb{background:#161412}
+
+.loadmore{display:grid;place-items:center;padding:40px 0 70px;color:var(--dim);font-family:var(--mono);font-size:12px}
+.pass{grid-column:1/-1;display:flex;align-items:center;gap:14px;color:var(--mut);font-family:var(--mono);font-size:12px;margin:12px 0}
+.pass::before,.pass::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.empty{padding:80px 20px;text-align:center;color:var(--mut)}
+.empty h3{font-family:var(--serif);font-weight:400;font-size:34px;color:var(--text);margin-bottom:8px}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+.scrim.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:min(860px,100%);max-height:92vh;overflow:auto}
+.modal .poster{aspect-ratio:21/9;border-radius:18px 18px 0 0}
+.modal .poster .pbrand{font-size:clamp(46px,7vw,92px)}
+.mb{padding:22px 26px 26px}
+.mb .row{display:flex;gap:14px;align-items:flex-start}
+.mb h2{font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.05;flex:1}
+.mb .by{color:var(--mut);margin-top:6px;font-size:14px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.facts span{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border:1px solid var(--line);border-radius:6px;color:var(--mut)}
+.steal{background:var(--bg3);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px;margin:6px 0 18px}
+.steal small{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--gold)}
+.steal p{margin-top:6px;line-height:1.55;font-size:15px}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:600;text-decoration:none;background:var(--bg3)}
+.btn.pri{background:var(--text);color:#111;border-color:var(--text)}
+.btn.gold{background:var(--gold);color:#111;border-color:var(--gold)}
+.btn:hover{filter:brightness(1.08)}
+.note{width:100%;margin-top:16px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text);font:inherit;font-size:14px;min-height:70px;resize:vertical;outline:none}
+.note:focus{border-color:#555}
+.lbl{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:18px;display:block}
+.x{position:absolute;right:14px;top:14px;z-index:6;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.6);display:grid;place-items:center;font-size:18px}
+
+.inp{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);font:inherit;font-size:14px;outline:none;margin-top:10px}
+.inp:focus{border-color:#555}
+.sw-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.sw-grid .inp{margin-top:6px}
+.addbar{display:flex;gap:10px;margin:0 0 24px}
+.addbar .inp{margin:0;flex:1}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);background:var(--text);color:#111;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:80;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero .side{grid-template-rows:none}
+  .search{display:none}
+  .sync{display:none}
+  .wrap{padding:0 14px}
+  .logo i{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><span class="rec"></span><b>DAILY REEL</b><i>inspo feed</i></div>
+    <div class="tabs">
+      <button class="tab on" data-view="feed">For You</button>
+      <button class="tab" data-view="saved">★ Saved<span class="n" id="savedN">0</span></button>
+    </div>
+    <button class="refresh" id="refresh" title="Refresh: new drops or a fresh mix"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Refresh</span></button>
+    <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search brands, styles, techniques…" autocomplete="off"></label>
+    <span class="sync" id="sync">loading…</span>
+  </div>
+  <div class="wrap chips" id="chips"></div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<div class="scrim" id="scrim"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   LIBRARY — curated short ads, brand films, promos, shorts.
+   len = approx running time. New entries also arrive daily from the db.
+   ============================================================ */
+const CATS={swipe:"📌 Swipe file",ad:"Ad",film:"Brand film",short:"Cinematic short",promo:"Promo / Trailer",ai:"AI-made",music:"Music video"};
+let L=[];  // loaded from videos.json (updated daily)
+
+/* ============================================================
+   Concept sparks — infinite generated prompt ideas
+   ============================================================ */
+const SP={
+  fmt:["a 60s product film","a 30s teaser","a 90s brand anthem","a 2-minute cinematic short","a 15s vertical hook","a 45s launch promo"],
+  subj:["a running shoe","a perfume bottle","a smartphone","an energy drink","a mechanical watch","an electric car","wireless headphones","a specialty coffee brand","a football club","a skincare serum","a camera","a streetwear drop","a sparkling water","a luxury hotel","a fintech app","a gaming console"],
+  tech:["one continuous take","split-screen match cuts","time running in reverse","a macro-to-epic scale reveal","whip-pan transitions on every beat","a single-colour world","silhouettes only","the product's own POV","cuts locked to a drum pattern","a handmade stop-motion look","no dialogue, only sound design","the product hidden until the final frame","an infinite forward zoom","an era-hopping relay through decades","a famous-painting style relay"],
+  twist:["told as a nature documentary","as a heist","as a love story between two objects","as a 1970s sci-fi trailer","as a silent comedy","as a sports commentary","as a dream that leaks into reality","as a fake instruction manual","as a myth told by a grandmother","from the villain's side","as a single run through a city at dawn","as a museum exhibit coming alive"]
+};
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const pad=n=>String(n).padStart(2,"0");
+const today=(()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())})();
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const ytq=v=>"https://www.youtube.com/results?search_query="+encodeURIComponent((v.q||[v.brand,v.title,v.year,v.cat==="short"?"short film":v.cat==="music"?"music video":v.cat==="ai"?"AI film":"commercial"].join(" ")));
+const vimq=v=>"https://vimeo.com/search?q="+encodeURIComponent(v.brand+" "+v.title);
+const safeUrl=u=>typeof u==="string"&&/^https:\/\/[^\s"'<>]+$/.test(u)?u:"";
+
+/* ============================================================
+   State
+   ============================================================ */
+let saves=LS.get("dr_saves",{});        // id -> {v, savedAt, note}
+let pending=LS.get("dr_pending",[]);    // ids saved while offline
+let prefs=LS.get("dr_prefs",{hidden:[],boost:{}});
+let seen=LS.get("dr_seen",{});          // id -> {r: refresh# last shown, c: times shown}
+for(const k in seen){if(typeof seen[k]!=="object")seen[k]={r:0,c:1}}
+let refreshN=(LS.get("dr_refresh",0)|0)+1; LS.set("dr_refresh",refreshN);   // every page load counts as a refresh
+let lastVisitExtra=new Set(LS.get("dr_known_extra",[]));
+let extra=[];                           // videos added via db (daily updates)
+let view="feed", cat="all", query="";
+let db=null, uid=null, userCol=null;
+
+/* ============================================================
+   Poster generator
+   ============================================================ */
+function poster(v,opts={}){
+  const h=hash(v.brand+v.title), h2=hash(v.id);
+  const hue=h%360, hue2=(hue+[40,180,-50,140,210,25][h2%6]+360)%360;
+  const sat=v.cat==="ai"?70:v.year<2000?18:45+(h%35);
+  let lay=h2%4; if(lay===2&&v.brand.length>6)lay=0;
+  const deco=[
+    `<div class="deco" style="inset:0;background:radial-gradient(ellipse at ${20+h%60}% ${30+h2%40}%,hsla(${hue2},${sat+20}%,62%,.75),transparent 60%)"></div>`,
+    `<div class="deco" style="left:0;right:0;top:${46+h%20}%;height:1px;background:hsla(${hue2},80%,80%,.6);box-shadow:0 0 40px 10px hsla(${hue2},80%,60%,.35)"></div>`,
+    `<div class="deco" style="width:70%;aspect-ratio:1;border-radius:50%;right:-${10+h%20}%;top:-${10+h2%30}%;background:radial-gradient(circle,hsla(${hue2},${sat+25}%,60%,.9),hsla(${hue2},${sat}%,40%,0) 70%)"></div>`,
+    `<div class="deco" style="inset:0;background:repeating-linear-gradient(${h%180}deg,hsla(${hue2},60%,70%,.08) 0 2px,transparent 2px 22px)"></div>`
+  ][h%4];
+  const bg=`linear-gradient(${135+h%90}deg,hsl(${hue},${sat}%,${v.year<2000?14:20}%),hsl(${hue2},${Math.max(sat-15,8)}%,${8+h2%10}%))`;
+  const isNew=v.added && v.added>=dayOffset(-3);
+  const thumb=v.yt?`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`:v.vimeo?`https://vumbnail.com/${v.vimeo}.jpg`:"";
+  return `<div class="poster lay${lay}${thumb?" hasthumb":""}" style="background:${bg}">
+    ${thumb?`<img class="thumb" loading="lazy" src="${thumb}" alt="" onerror="this.parentNode.classList.remove('hasthumb');this.remove()">`:deco}
+    <div class="pbrand">${esc(v.brand)}</div>
+    <div class="ptitle">${esc(v.title)}</div>
+    <div class="lb t"></div><div class="lb b"></div>
+    <span class="badge cat">${esc(CATS[v.cat]||v.cat)}</span>${(v.yt||v.vimeo)?'<span class="badge play-ok">▶ PLAYS HERE</span>':""}
+    ${isNew?'<span class="badge new">NEW</span>':""}
+    ${(v.len||v.year)?`<span class="badge len">${esc(v.len||"")}${v.len&&v.year?" · ":""}${v.year?esc(v.year):""}</span>`:""}
+    ${opts.noplay?"":'<div class="play"><i><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></i></div>'}
+  </div>`;
+}
+function dayOffset(n){const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+
+function sparkPoster(s){
+  return `<div class="poster"><div class="sp"><small>✦ CONCEPT SPARK · ${esc(s.day||today)}</small><b>${esc(s.text)}</b></div><div class="lb t"></div><div class="lb b"></div></div>`;
+}
+function makeSpark(n){
+  const r=rng(hash(today+"spark"+refreshN+"-"+n)), p=a=>a[Math.floor(r()*a.length)];
+  const all=allVideos(), ref=all[Math.floor(r()*all.length)];
+  const text=`Make ${p(SP.fmt)} for ${p(SP.subj)} using ${p(SP.tech)}, ${p(SP.twist)}.`;
+  return {id:"spark-"+today.replace(/-/g,"")+"-"+refreshN+"-"+n,spark:true,text,ref:ref?ref.id:null,brand:"Concept spark",title:text,cat:"spark",tags:["spark"],day:today};
+}
+
+/* ============================================================
+   Recommendation engine
+   ============================================================ */
+function allVideos(){
+  return L;
+}
+function affinity(){
+  const a={};
+  Object.values(saves).forEach(s=>{const v=s.v;if(!v||v.spark)return;(v.tags||[]).forEach(t=>a[t]=(a[t]||0)+1);a["cat:"+v.cat]=(a["cat:"+v.cat]||0)+1.5;a["brand:"+v.brand]=(a["brand:"+v.brand]||0)+1});
+  Object.entries(prefs.boost||{}).forEach(([k,n])=>a[k]=(a[k]||0)+n);
+  return a;
+}
+function score(v,aff,r){
+  let s=r()*3.2;
+  (v.tags||[]).forEach(t=>{if(aff[t])s+=Math.min(aff[t],4)*.55});
+  if(aff["cat:"+v.cat])s+=Math.min(aff["cat:"+v.cat],5)*.4;
+  if(aff["brand:"+v.brand])s+=.6;
+  if(v.added){ if(v.added>=dayOffset(-2))s+=6; else if(v.added>=dayOffset(-7))s+=2.5; }
+  if(v.year>=2024)s+=.7;
+  if(v.yt||v.vimeo)s+=1.8;   // prefer videos that play right here
+  const sn=seen[v.id];
+  if(!sn)s+=1.6;
+  else if(sn.r<refreshN)s-=Math.min(1.4+sn.c*.6,5);
+  if(v.added&&!lastVisitExtra.has(v.id))s+=5;
+  if(saves[v.id])s-=1.5;                     // already saved → less need to recommend
+  return s;
+}
+function matches(v){
+  if((prefs.hidden||[]).includes(v.id))return false;
+  if(cat==="swipe"){if(!v.swipe)return false}
+  else if(v.swipe)return false;
+  if(cat==="classic"){if(!(v.year&&v.year<2010))return false}
+  else if(cat==="new"){if(!(v.year>=2025||v.added))return false}
+  else if(cat!=="all"&&cat!=="spark"&&cat!=="swipe"&&v.cat!==cat)return false;
+  if(query){const hay=(v.brand+" "+v.title+" "+(v.tags||[]).join(" ")+" "+(v.note||"")+" "+(v.dir||"")).toLowerCase();if(!query.split(/\s+/).every(w=>hay.includes(w)))return false}
+  return true;
+}
+function rankPass(pass){
+  const aff=affinity(), r=rng(hash(today+"|"+refreshN+"|"+pass+"|"+cat));
+  return allVideos().filter(matches).map(v=>({v,s:score(v,aff,r)})).sort((a,b)=>b.s-a.s).map(x=>x.v);
+}
+
+/* ============================================================
+   Feed rendering (infinite)
+   ============================================================ */
+let queue=[], pass=0, sparkN=0, rendered=0, io=null, heroIds=new Set();
+
+function cardHTML(v){
+  if(v.spark){
+    return `<article class="card spark" data-id="${esc(v.id)}">${sparkPoster(v)}
+      <div class="cbody"><div class="t"><h3>Prompt idea for today</h3><div class="by">Remix · tap for references</div></div>${starBtn(v)}</div></article>`;
+  }
+  return `<article class="card" data-id="${esc(v.id)}">${poster(v)}
+    <div class="cbody"><div class="t"><h3>${esc(v.title)}</h3><div class="by">${v.untitled?'<span style="color:var(--gold)">Untitled · tap to name it</span>':esc(v.brand)+(v.dir?" · dir. "+esc(v.dir):"")}</div><div class="why">${esc(v.note)}</div></div>${starBtn(v)}</div></article>`;
+}
+function starBtn(v){
+  const on=!!saves[v.id];
+  return `<button class="star${on?" on":""}" data-star="${esc(v.id)}" title="${on?"Saved: click to remove":"Save"}" aria-label="Save"><svg viewBox="0 0 24 24" fill="${on?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2.8l2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.36l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93z"/></svg></button>`;
+}
+
+function renderFeed(){
+  const main=$("#main");
+  pass=0;sparkN=0;rendered=0;
+  if(cat==="spark"){
+    main.innerHTML=`<div class="dayhead"><h1>Concept <em>sparks</em></h1><div class="meta">fresh prompts every day<br>${today}</div></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading more sparks…</div>`;
+    queue=[];moreSparks(18);observe();return;
+  }
+  queue=rankPass(0);
+  if(!queue.length){
+    main.innerHTML=`<div class="empty"><h3>Nothing matches</h3><p>Try another filter or search.</p></div>`;return;
+  }
+  const showHero=!query&&cat==="all";
+  let hero="";heroIds=new Set();
+  if(showHero){
+    const top=queue.slice(0,5);top.forEach(v=>heroIds.add(v.id));queue=queue.slice(5);
+    const d=new Date();
+    hero=`<div class="dayhead"><h1>Today's <em>drop</em></h1><div class="meta">${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"})}<br>${allVideos().length} films · mix #${refreshN} · hit ↻ for more</div></div>
+    <section class="hero">
+      ${cardHTML(top[0]).replace('class="card"','class="card big"')}
+      <div class="side">${top.slice(1).map(v=>`<div class="mini" data-id="${esc(v.id)}">${poster(v)}<div><h4>${esc(v.title)}</h4><p>${esc(v.brand)} · ${esc(v.len)}</p></div></div>`).join("")}</div>
+    </section>`;
+    top.forEach(v=>markSeen(v.id));
+  }
+  main.innerHTML=hero+`<div class="secthead"><h2>${showHero?"RECOMMENDED FOR YOU":esc(chipLabel(cat)).toUpperCase()}</h2><div class="rule"></div><span>${Object.keys(saves).length?"tuned by your stars":"star things to tune this feed"}</span></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading more…</div>`;
+  more(15);observe();
+}
+function more(n){
+  const g=$("#grid");if(!g)return;
+  let html="";
+  for(let i=0;i<n;i++){
+    if(!queue.length){
+      pass++;
+      queue=rankPass(pass).filter(v=>!heroIds.has(v.id));
+      if(!queue.length)break;
+      html+=`<div class="pass">You've seen today's full set. Here's another pass, reshuffled · round ${pass+1}</div>`;
+    }
+    const v=queue.shift();
+    html+=cardHTML(v);rendered++;
+    if(cat==="all"&&!query&&rendered%6===0){html+=cardHTML(makeSpark(sparkN++))}
+  }
+  g.insertAdjacentHTML("beforeend",html);
+  g.querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
+}
+function moreSparks(n){const g=$("#grid");let h="";for(let i=0;i<n;i++)h+=cardHTML(makeSpark(sparkN++));g.insertAdjacentHTML("beforeend",h)}
+function observe(){
+  if(io)io.disconnect();
+  const m=$("#more");if(!m)return;
+  io=new IntersectionObserver(es=>{if(es[0].isIntersecting){cat==="spark"?moreSparks(12):more(12)}},{rootMargin:"900px"});
+  io.observe(m);
+}
+let seenDirty=false;
+const seenIO=("IntersectionObserver" in window)?new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){markSeen(e.target.dataset.id);seenIO.unobserve(e.target)}})},{threshold:.6}):null;
+function markSeen(id){const s=seen[id];if(!s){seen[id]={r:refreshN,c:1};seenDirty=true}else if(s.r!==refreshN){s.r=refreshN;s.c=(s.c||0)+1;seenDirty=true}}
+setInterval(()=>{if(seenDirty){seenDirty=false;
+  LS.set("dr_seen",seen)}},3000);
+async function doRefresh(){
+  LS.set("dr_seen",seen);
+  const b0=$("#refresh");b0.classList.remove("spin");void b0.offsetWidth;b0.classList.add("spin");
+  await loadLibrary();
+  const fresh=allVideos().filter(v=>v.added&&!lastVisitExtra.has(v.id)).length;
+  refreshN++;LS.set("dr_refresh",refreshN);
+  view="feed";if(cat==="spark")cat="all";
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.view==="feed"));
+  window.scrollTo({top:0,behavior:"smooth"});
+  render();
+  setTimeout(()=>{lastVisitExtra=new Set(L.filter(v=>v.added).map(v=>v.id));LS.set("dr_known_extra",[...lastVisitExtra])},1500);
+  const unseen=allVideos().filter(v=>!seen[v.id]).length;
+  toast(fresh?`🔥 ${fresh} new drop${fresh>1?"s":""} at the top`:unseen?`↻ Fresh mix · ${unseen} you haven't seen yet`:"↻ Fresh mix of past favourites");
+  const b=$("#refresh");b.classList.remove("spin");void b.offsetWidth;b.classList.add("spin");
+}
+
+/* ============================================================
+   Saved view
+   ============================================================ */
+let savedCat="all";
+function renderSaved(){
+  const list=Object.values(saves).filter(s=>s&&s.v).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  const filtered=list.filter(s=>{const v=s.v;
+    if(savedCat!=="all"&&(savedCat==="spark"?!v.spark:v.cat!==savedCat))return false;
+    if(query){const hay=(v.brand+" "+v.title+" "+(v.tags||[]).join(" ")+" "+(s.note||"")).toLowerCase();if(!query.split(/\s+/).every(w=>hay.includes(w)))return false}
+    return true});
+  const main=$("#main");
+  if(!list.length){main.innerHTML=`<div class="empty"><h3>No stars yet</h3><p>Tap ☆ on anything in your feed. It's kept here permanently, even as the feed changes every day.</p></div>`;return}
+  const usedCats=[...new Set(list.map(s=>s.v.spark?"spark":s.v.cat))];
+  main.innerHTML=`<div class="dayhead"><h1>Your <em>saved</em> reel</h1><div class="meta">${list.length} saved<br>saved on this device</div></div>
+    <div class="acts" style="margin:-4px 0 18px"><button class="btn" id="expBtn">⬇ Back up stars</button><label class="btn" style="cursor:pointer">⬆ Restore backup<input type="file" id="impFile" accept="application/json" hidden></label></div><div style="display:none"><div></div></div>
+    <div class="chips" style="padding-top:0">${["all",...usedCats].map(c=>`<button class="chip${savedCat===c?" on":""}" data-scat="${c}">${c==="all"?"All":c==="spark"?"Sparks":esc(CATS[c]||c)}</button>`).join("")}</div>
+    <div class="grid" id="sgrid">${filtered.map(s=>cardHTML(s.v)).join("")||'<p style="color:var(--mut)">Nothing matches.</p>'}</div><div style="height:80px"></div>`;
+}
+
+/* ============================================================
+   Modal
+   ============================================================ */
+let modalId=null, noteTimer=null;
+function findV(id){return allVideos().find(v=>v.id===id)||(saves[id]&&saves[id].v)||(id.startsWith("spark-")&&findSpark(id))}
+function findSpark(id){const n=+id.split("-").pop();const s=makeSpark(n);return s.id===id?s:null}
+function openModal(id){
+  const v=findV(id);if(!v)return;
+  modalId=id;
+  const s=saves[id];
+  let body;
+  if(v.spark){
+    const ref=v.ref&&findV(v.ref);
+    body=`<div style="position:relative">${sparkPoster(v)}<button class="x" data-close>✕</button></div>
+    <div class="mb"><div class="row"><h2>${esc(v.text)}</h2>${starBtn(v)}</div>
+    ${ref?`<div class="steal"><small>LOOK AT FOR REFERENCE</small><p><b>${esc(ref.brand)}: ${esc(ref.title)}</b> (${esc(ref.year)}). ${esc(ref.note)}</p></div>
+    <div class="acts"><a class="btn pri" href="${ytq(ref)}" target="_blank" rel="noopener">▶ Watch reference</a><button class="btn" data-open="${esc(ref.id)}">Open reference</button></div>`:""}
+    ${noteBox(s)}</div>`;
+  }else{
+    const direct=safeUrl(v.url);
+    const emb=v.yt?`https://www.youtube-nocookie.com/embed/${v.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`:v.vimeo?`https://player.vimeo.com/video/${v.vimeo}?autoplay=1&title=0&byline=0`:"";
+    const top=emb?`<div class="player"><iframe src="${emb}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><button class="x" data-close>✕</button></div>`
+                 :`<div style="position:relative">${poster(v,{noplay:1})}<button class="x" data-close>✕</button></div>`;
+    body=`${top}
+    <div class="mb"><div class="row"><div style="flex:1"><h2>${esc(v.title)}</h2><div class="by">${esc(v.brand)}${v.dir?" · directed by "+esc(v.dir):""}</div></div>${starBtn(v)}</div>
+    <div class="facts"><span>${esc(CATS[v.cat]||v.cat)}</span><span>${esc(v.year)}</span><span>≈ ${esc(v.len)}</span>${(v.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join("")}</div>
+    <div class="steal"><small>STEAL THIS</small><p>${esc(v.note)}</p></div>
+    <div class="acts">
+      ${v.yt?`<a class="btn" href="https://www.youtube.com/watch?v=${v.yt}" target="_blank" rel="noopener">Open on YouTube</a>`:v.vimeo?`<a class="btn" href="https://vimeo.com/${v.vimeo}" target="_blank" rel="noopener">Open on Vimeo</a>`:direct?`<a class="btn pri" href="${esc(direct)}" target="_blank" rel="noopener">▶ Watch</a>`:`<a class="btn pri" href="${ytq(v)}" target="_blank" rel="noopener">▶ Find on YouTube</a>`}
+      <a class="btn" href="${vimq(v)}" target="_blank" rel="noopener">Vimeo</a>
+      <button class="btn" data-more="${esc(v.id)}">More like this</button>
+      <button class="btn" data-hide="${esc(v.id)}">Not for me</button>
+    </div>
+    ${noteBox(s)}</div>`;
+  }
+  $("#modal").innerHTML=body;
+  $("#scrim").classList.add("on");
+  markSeen(id);
+}
+function noteBox(s){
+  return s?`<label class="lbl">YOUR NOTES: shot ideas, prompts, what to steal</label><textarea class="note" id="note" placeholder="e.g. use the split-screen trick for the sneaker promo…">${esc(s.note||"")}</textarea>`
+          :`<p class="lbl">Star this to keep it and add your own notes.</p>`;
+}
+function closeModal(){flushNote();$("#scrim").classList.remove("on");$("#modal").innerHTML="";modalId=null}
+
+/* ============================================================
+   Saving (db + local mirror)
+   ============================================================ */
+const writeChain={};
+function dbWrite(key,fn){
+  if(!userCol)return Promise.resolve();
+  writeChain[key]=(writeChain[key]||Promise.resolve()).then(fn).catch(e=>{
+    if(e&&e.code==="quota_exceeded")toast("Storage is full. Remove some saves.");
+    else if(e&&e.code==="unavailable")return new Promise(r=>setTimeout(r,800+Math.random()*800)).then(fn).catch(()=>{});
+  });
+  return writeChain[key];
+}
+function persistLocal(){LS.set("dr_saves",saves);LS.set("dr_pending",pending)}
+function toggleSave(id,btn){
+  const v=findV(id);if(!v)return;
+  if(saves[id]){
+    delete saves[id];pending=pending.filter(x=>x!==id);
+    dbWrite("s_"+id,()=>userCol.doc(docKey(id)).delete());
+    toast("Removed from saved");
+  }else{
+    const snap=JSON.parse(JSON.stringify(v));
+    saves[id]={v:snap,savedAt:Date.now(),note:""};
+    if(userCol)dbWrite("s_"+id,()=>userCol.doc(docKey(id)).set({type:"save",v:snap,savedAt:saves[id].savedAt,note:""}));
+    else if(!pending.includes(id))pending.push(id);
+    toast("★ Saved. It stays even when the feed updates.");
+  }
+  persistLocal();
+  document.querySelectorAll(`[data-star="${CSS.escape(id)}"]`).forEach(b=>{b.outerHTML=starBtn(v)});
+  const nb=document.querySelector(`[data-star="${CSS.escape(id)}"]`);if(nb&&saves[id]){nb.classList.add("pop")}
+  $("#savedN").textContent=Object.keys(saves).length;
+  if(view==="saved"&&!modalId)renderSaved();
+  if(modalId===id)openModal(id);
+}
+function docKey(id){return "s_"+id.replace(/[^A-Za-z0-9_\-.~:@+]/g,"_").slice(0,180)}
+function flushNote(){
+  const ta=$("#note");if(!ta)return;const id=ta.closest(".modal")&&modalId;
+  if(!id||!saves[id])return;
+  if(saves[id].note===ta.value)return;
+  saves[id].note=ta.value;persistLocal();
+  const s=saves[id];
+  dbWrite("s_"+id,()=>userCol.doc(docKey(id)).set({type:"save",v:s.v,savedAt:s.savedAt,note:s.note}));
+}
+let prefTimer=null;
+function savePrefs(){LS.set("dr_prefs",prefs);clearTimeout(prefTimer);prefTimer=setTimeout(()=>{if(userCol)dbWrite("prefs",()=>userCol.doc("prefs").set({type:"prefs",hidden:prefs.hidden.slice(-500),boost:prefs.boost}))},1500)}
+
+/* ============================================================
+   Events
+   ============================================================ */
+const CHIPS=[["all","For You"],["new","New & 2025–26"],["ad","Ads"],["film","Brand films"],["short","Cinematic shorts"],["ai","AI-made"],["promo","Promos & trailers"],["music","Music videos"],["classic","Classics"],["spark","✦ Concept sparks"]];
+function chipLabel(c){const f=CHIPS.find(x=>x[0]===c);return f?f[1]:c}
+function renderChips(){
+  $("#chips").innerHTML=view==="feed"?CHIPS.map(([k,l])=>`<button class="chip${cat===k?" on":""}" data-cat="${k}">${l}</button>`).join(""):"";
+  $("#chips").style.display=view==="feed"?"flex":"none";
+}
+function render(){renderChips();view==="feed"?renderFeed():renderSaved();$("#savedN").textContent=Object.keys(saves).length}
+
+document.addEventListener("click",e=>{
+  const t=e.target;
+  const star=t.closest("[data-star]");if(star){e.stopPropagation();toggleSave(star.dataset.star,star);return}
+  if(t.closest("[data-close]")||t.id==="scrim"){closeModal();return}
+  if(t.closest("#refresh")){doRefresh();return}
+  if(t.closest("#expBtn")){const blob=new Blob([JSON.stringify({saves,prefs},null,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="daily-reel-stars-"+today+".json";a.click();toast("Backup downloaded");return}
+  const tab=t.closest(".tab");if(tab){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===tab));view=tab.dataset.view;window.scrollTo(0,0);render();return}
+  const chip=t.closest("[data-cat]");if(chip){cat=chip.dataset.cat;window.scrollTo(0,0);render();return}
+  const sc=t.closest("[data-scat]");if(sc){savedCat=sc.dataset.scat;renderSaved();return}
+  const mo=t.closest("[data-more]");if(mo){const v=findV(mo.dataset.more);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.min((prefs.boost[tg]||0)+1,6));prefs.boost["cat:"+v.cat]=Math.min((prefs.boost["cat:"+v.cat]||0)+1,6);savePrefs();toast("Got it. More like this coming up.");closeModal();if(view==="feed")renderFeed();return}
+  const hd=t.closest("[data-hide]");if(hd){prefs.hidden.push(hd.dataset.hide);const v=findV(hd.dataset.hide);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
+  const op=t.closest("[data-open]");if(op){flushNote();openModal(op.dataset.open);return}
+  if(t.closest("a"))return;
+  const card=t.closest(".card,.mini");if(card&&!t.closest(".modal")){openModal(card.dataset.id)}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modalId)closeModal()});
+document.addEventListener("change",e=>{if(e.target.id==="impFile"&&e.target.files[0]){e.target.files[0].text().then(t=>{try{const j=JSON.parse(t);Object.assign(saves,j.saves||{});if(j.prefs)prefs=j.prefs;persistLocal();LS.set("dr_prefs",prefs);toast("Stars restored");render()}catch(err){toast("That file isn't a Daily Reel backup")}})}});
+document.addEventListener("input",e=>{if(e.target.id==="note"){clearTimeout(noteTimer);noteTimer=setTimeout(flushNote,900)}});
+let qTimer=null;
+$("#q").addEventListener("input",e=>{clearTimeout(qTimer);qTimer=setTimeout(()=>{query=e.target.value.trim().toLowerCase();render()},220)});
+let toastT=null;
+function toast(m){const el=$("#toast");el.textContent=m;el.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),2200)}
+function setSync(txt,ok){const s=$("#sync");s.textContent=txt;s.classList.toggle("ok",!!ok)}
+
+/* ============================================================
+   Library loading (videos.json is updated daily)
+   ============================================================ */
+function cleanVideo(d){
+  if(!d||typeof d!=="object")return null;
+  const str=(x,n)=>typeof x==="string"?x.slice(0,n):"";
+  const v={id:str(d.id,120),brand:str(d.brand,60),title:str(d.title,140),year:+d.year||"",cat:CATS[d.cat]?d.cat:"ad",len:str(d.len,10),
+    tags:Array.isArray(d.tags)?d.tags.filter(t=>typeof t==="string").slice(0,8):[],note:str(d.note,700),dir:str(d.dir,80),
+    added:/^\d{4}-\d{2}-\d{2}$/.test(d.added)?d.added:"",yt:/^[A-Za-z0-9_-]{6,15}$/.test(d.yt||"")?d.yt:"",vimeo:/^\d{5,}$/.test(d.vimeo||"")?d.vimeo:"",url:safeUrl(d.url),q:str(d.q,160)};
+  return v.id&&v.brand&&v.title?v:null;
+}
+async function loadLibrary(){
+  try{
+    const r=await fetch("videos.json?t="+Date.now(),{cache:"no-store"});
+    const j=await r.json();
+    L=(j.videos||[]).map(cleanVideo).filter(Boolean);
+    setSync(L.length+" films · updated "+(j.updated||""),true);
+  }catch(e){setSync("couldn't load library");}
+}
+$("#main").innerHTML='<div class="loadmore">loading the reel…</div>';
+loadLibrary().then(()=>{render();setTimeout(()=>{lastVisitExtra=new Set(L.filter(v=>v.added).map(v=>v.id));LS.set("dr_known_extra",[...lastVisitExtra])},15000)});
+</script>
+</body>
+</html>

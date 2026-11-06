@@ -1,0 +1,1604 @@
+{
+ "updated": "2026-11-06",
+ "videos": [
+  {
+   "id": "apple-1984",
+   "brand": "Apple",
+   "title": "1984",
+   "year": 1984,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "dystopian",
+    "iconic",
+    "symbolism",
+    "cinematic"
+   ],
+   "note": "The product never appears. One symbolic act (the hammer through the screen) carries the whole brand promise. Build your next spot around a single image that means something, not a feature list.",
+   "dir": "Ridley Scott",
+   "added": "",
+   "yt": "2zfqw8nhUwA"
+  },
+  {
+   "id": "apple-think-different",
+   "brand": "Apple",
+   "title": "Think Different",
+   "year": 1997,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "voiceover",
+    "black-white",
+    "montage",
+    "manifesto"
+   ],
+   "note": "A manifesto VO over a black-and-white portrait montage. With AI, create archetype portraits (the inventor, the rebel) in a consistent B&W grade and cut them to one spoken rhythm.",
+   "dir": "",
+   "added": "",
+   "yt": "tjgtLSHhTPg"
+  },
+  {
+   "id": "apple-welcome-home",
+   "brand": "Apple",
+   "title": "Welcome Home",
+   "year": 2018,
+   "cat": "film",
+   "len": "4:00",
+   "tags": [
+    "dance",
+    "surreal",
+    "music-driven",
+    "transformation",
+    "one-take"
+   ],
+   "note": "A tiny apartment physically stretches and unfolds to the music. Push this: let the set react to the beat. Generate the room states as keyframes and morph between them on downbeats.",
+   "dir": "Spike Jonze",
+   "added": "",
+   "yt": "k70OczvX45k"
+  },
+  {
+   "id": "apple-sway",
+   "brand": "Apple",
+   "title": "Sway",
+   "year": 2017,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "dance",
+    "romance",
+    "winter",
+    "music-driven",
+    "holiday"
+   ],
+   "note": "Earbuds in, the world dissolves into a private duet in the snow. Classic structure: ordinary moment → music kicks in → fantasy → back to reality with a smile.",
+   "dir": "",
+   "added": "",
+   "yt": "G9CYcK3GzIc"
+  },
+  {
+   "id": "apple-bounce",
+   "brand": "Apple",
+   "title": "Bounce",
+   "year": 2019,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "surreal",
+    "physics",
+    "comedy",
+    "city",
+    "music-driven"
+   ],
+   "note": "Pavement turns to trampoline. One impossible physics rule held for the whole spot. Simple to prompt, very visual, easy to sustain across shots.",
+   "dir": "",
+   "added": "",
+   "yt": "vGqOFu65KHY"
+  },
+  {
+   "id": "apple-data-auction",
+   "brand": "Apple",
+   "title": "Privacy — Data Auction",
+   "year": 2022,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "comedy",
+    "dialogue",
+    "concept",
+    "tech"
+   ],
+   "note": "An abstract idea (data being sold) made literal as a live auction. Turn the invisible problem your product solves into a physical scene.",
+   "dir": "",
+   "added": "",
+   "yt": "CvdrELwkTZs"
+  },
+  {
+   "id": "apple-the-greatest",
+   "brand": "Apple",
+   "title": "The Greatest",
+   "year": 2022,
+   "cat": "film",
+   "len": "2:00",
+   "tags": [
+    "accessibility",
+    "emotional",
+    "music-driven",
+    "montage",
+    "people"
+   ],
+   "note": "Real use cases cut to an anthem track, each vignette a 3–5 second micro-story. Good template for a 60–90s montage: every shot needs its own tiny payoff.",
+   "dir": "",
+   "added": "",
+   "yt": "8sX9IEHWRJ8"
+  },
+  {
+   "id": "apple-crush",
+   "brand": "Apple",
+   "title": "Crush!",
+   "year": 2024,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "product",
+    "practical",
+    "destruction",
+    "controversial"
+   ],
+   "note": "A hydraulic press crushes instruments and art into an iPad. Visually precise, but people hated what it said. Study it as a warning: a destruction metaphor can read as contempt for craft.",
+   "dir": "",
+   "added": "",
+   "yt": "ntjkwIXWtrc"
+  },
+  {
+   "id": "apple-fuzzy-feelings",
+   "brand": "Apple",
+   "title": "Fuzzy Feelings",
+   "year": 2023,
+   "cat": "ad",
+   "len": "2:30",
+   "tags": [
+    "stop-motion",
+    "holiday",
+    "emotional",
+    "character",
+    "handmade"
+   ],
+   "note": "A stop-motion look with felt textures and a tiny office worker. AI tools can fake this tactile style: prompt fabric, fuzz and slight frame-to-frame jitter.",
+   "dir": "",
+   "added": "",
+   "yt": "Zqq05fAQ98k"
+  },
+  {
+   "id": "apple-the-surprise",
+   "brand": "Apple",
+   "title": "The Surprise",
+   "year": 2019,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "holiday",
+    "family",
+    "emotional",
+    "reveal"
+   ],
+   "note": "A quiet build to one emotional reveal that the product makes possible. The product is the delivery device, not the hero.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "apple-share-your-gifts",
+   "brand": "Apple",
+   "title": "Share Your Gifts",
+   "year": 2018,
+   "cat": "ad",
+   "len": "2:30",
+   "tags": [
+    "animation",
+    "holiday",
+    "character",
+    "creative-block"
+   ],
+   "note": "An animated short about a shy creator. Characters plus a clear emotional arc in 2 minutes: want, fear, push, release.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "nike-dream-crazy",
+   "brand": "Nike",
+   "title": "Dream Crazy",
+   "year": 2018,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "sport",
+    "manifesto",
+    "voiceover",
+    "montage",
+    "inspirational"
+   ],
+   "note": "A VO-led montage where each line pays off on screen right away. Write the VO first, then generate one exact visual per line.",
+   "dir": "",
+   "added": "",
+   "yt": "abfIfm90E-4"
+  },
+  {
+   "id": "nike-you-cant-stop-us",
+   "brand": "Nike",
+   "title": "You Can't Stop Us",
+   "year": 2020,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "split-screen",
+    "match-cut",
+    "sport",
+    "edit",
+    "montage"
+   ],
+   "note": "Split-screen match cuts: two athletes, one continuous motion across the frame. Perfect for AI: generate pairs of clips with matching poses and camera moves.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "nike-write-the-future",
+   "brand": "Nike",
+   "title": "Write the Future",
+   "year": 2010,
+   "cat": "ad",
+   "len": "3:00",
+   "tags": [
+    "sport",
+    "football",
+    "epic",
+    "comedy",
+    "world-cup"
+   ],
+   "note": "One mistake or win spins into a fast-forward of possible futures. A branching 'what if' structure packs huge scale into 3 minutes.",
+   "dir": "Alejandro G. Iñárritu",
+   "added": "",
+   "yt": "igUF8Aa2OL0"
+  },
+  {
+   "id": "nike-find-your-greatness",
+   "brand": "Nike",
+   "title": "Find Your Greatness (The Jogger)",
+   "year": 2012,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "one-take",
+    "minimal",
+    "sport",
+    "voiceover",
+    "inspirational"
+   ],
+   "note": "One locked-off shot of a kid jogging toward camera, with a calm VO. Proof that one strong image and one sentence can beat 40 cuts.",
+   "dir": "",
+   "added": "",
+   "yt": "mI-m2EB6jJo"
+  },
+  {
+   "id": "nike-last-game",
+   "brand": "Nike",
+   "title": "The Last Game",
+   "year": 2014,
+   "cat": "film",
+   "len": "5:00",
+   "tags": [
+    "animation",
+    "football",
+    "comedy",
+    "clones",
+    "world-cup"
+   ],
+   "note": "Stylized 3D animation: footballers against perfect clones. The 'humans vs. soulless perfection' theme fits an AI filmmaker very well.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "nike-winning-isnt",
+   "brand": "Nike",
+   "title": "Winning Isn't for Everyone",
+   "year": 2024,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "sport",
+    "voiceover",
+    "dark",
+    "manifesto",
+    "olympics"
+   ],
+   "note": "An antihero voice ('am I a bad person?') over intense athlete close-ups. Flip the expected sentiment and let the tone carry it.",
+   "dir": "",
+   "added": "",
+   "yt": "pwLergHG81c"
+  },
+  {
+   "id": "nike-so-win",
+   "brand": "Nike",
+   "title": "So Win",
+   "year": 2025,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "sport",
+    "women",
+    "voiceover",
+    "black-white",
+    "super-bowl"
+   ],
+   "note": "Contrast built line by line: 'you're told you can't X… so win'. A repeatable copy structure you can apply to any brand.",
+   "dir": "",
+   "added": "",
+   "yt": "bx7sm8KVw3Q"
+  },
+  {
+   "id": "nike-londoner",
+   "brand": "Nike",
+   "title": "Nothing Beats a Londoner",
+   "year": 2018,
+   "cat": "ad",
+   "len": "3:00",
+   "tags": [
+    "city",
+    "comedy",
+    "youth",
+    "fast-cut",
+    "sport"
+   ],
+   "note": "Kids one-up each other in a relay where each scene hands off to the next. The 'escalating hand-off' structure keeps energy rising.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "nike-dream-crazier",
+   "brand": "Nike",
+   "title": "Dream Crazier",
+   "year": 2019,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "sport",
+    "women",
+    "voiceover",
+    "manifesto"
+   ],
+   "note": "Reclaiming an insult as a rallying cry. Split-screen and archival-style textures with one strong VO.",
+   "dir": "",
+   "added": "",
+   "yt": "5Mc06cIrvXE"
+  },
+  {
+   "id": "adidas-impossible",
+   "brand": "Adidas",
+   "title": "Impossible Is Nothing",
+   "year": 2004,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "sport",
+    "manifesto",
+    "voiceover"
+   ],
+   "note": "Short declarative lines over hero athlete moments. A simple brand-anthem template.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "adidas-backyard-legends",
+   "brand": "Adidas",
+   "title": "Backyard Legends",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "football",
+    "grassroots",
+    "world-cup",
+    "celebrity",
+    "nostalgia"
+   ],
+   "note": "Grassroots football in place of stadium spectacle. Heart comes from the small, specific details of kids' games.",
+   "dir": "",
+   "added": "",
+   "yt": "mJJY53qhJe0"
+  },
+  {
+   "id": "honda-cog",
+   "brand": "Honda",
+   "title": "Cog",
+   "year": 2003,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "one-take",
+    "practical",
+    "chain-reaction",
+    "product",
+    "engineering"
+   ],
+   "note": "A real Rube Goldberg chain of car parts in one take. Not possible to fake in one AI shot, but you can build a fake 'oner' from clips that hand off movement through hidden cuts.",
+   "dir": "Antoine Bardou-Jacquet",
+   "added": "",
+   "yt": "ZRxQz5OFMmI"
+  },
+  {
+   "id": "honda-grrr",
+   "brand": "Honda",
+   "title": "Grrr",
+   "year": 2004,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "animation",
+    "music-driven",
+    "whimsical",
+    "engineering"
+   ],
+   "note": "A bright animated world with a catchy sung hook. A strong example of an engineering message turned into joy.",
+   "dir": "",
+   "added": "",
+   "yt": "lYtANGkdSxQ"
+  },
+  {
+   "id": "guinness-surfer",
+   "brand": "Guinness",
+   "title": "Surfer",
+   "year": 1999,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "black-white",
+    "epic",
+    "nature",
+    "voiceover",
+    "slow-motion"
+   ],
+   "note": "Surfers waiting for the perfect wave, which arrives as white horses. Strong B&W contrast and slow motion. Very achievable with AI image-to-video.",
+   "dir": "Jonathan Glazer",
+   "added": "",
+   "yt": "w9ogzVyTtcw"
+  },
+  {
+   "id": "guinness-noitulove",
+   "brand": "Guinness",
+   "title": "noitulovE",
+   "year": 2005,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "reverse",
+    "evolution",
+    "vfx",
+    "comedy",
+    "time"
+   ],
+   "note": "Evolution in reverse, from men back to mudskipper, in a single rewinding camera move. Reverse-time transitions are a great AI morph exercise.",
+   "dir": "",
+   "added": "",
+   "yt": "qINiB3ndGmU"
+  },
+  {
+   "id": "guinness-tipping-point",
+   "brand": "Guinness",
+   "title": "Tipping Point",
+   "year": 2007,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "chain-reaction",
+    "practical",
+    "epic",
+    "village"
+   ],
+   "note": "A massive domino chain through a village. Scale plus anticipation: the audience wants to see where it ends.",
+   "dir": "",
+   "added": "",
+   "yt": "7N2Ku6hSwAM"
+  },
+  {
+   "id": "sony-balls",
+   "brand": "Sony Bravia",
+   "title": "Balls",
+   "year": 2005,
+   "cat": "ad",
+   "len": "2:30",
+   "tags": [
+    "color",
+    "slow-motion",
+    "practical",
+    "city",
+    "music-driven"
+   ],
+   "note": "250,000 colored balls bounce down San Francisco streets, set to a gentle acoustic song. A great reference for 'color as the product'.",
+   "dir": "Nicolai Fuglsig",
+   "added": "",
+   "yt": "H-JVbvtjDus"
+  },
+  {
+   "id": "sony-paint",
+   "brand": "Sony Bravia",
+   "title": "Paint",
+   "year": 2006,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "color",
+    "explosion",
+    "slow-motion",
+    "practical"
+   ],
+   "note": "Paint explodes across a housing block. Abstract color bursts against a drab setting is an easy contrast to borrow.",
+   "dir": "Jonathan Glazer",
+   "added": "",
+   "yt": "GdEtZK3CE2k"
+  },
+  {
+   "id": "cadbury-gorilla",
+   "brand": "Cadbury",
+   "title": "Gorilla",
+   "year": 2007,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "comedy",
+    "music-driven",
+    "surreal",
+    "slow-build"
+   ],
+   "note": "A gorilla slowly builds up to a drum fill. Almost nothing happens, then everything happens. Holding back makes the payoff bigger.",
+   "dir": "",
+   "added": "",
+   "yt": "NNerJzj1kjU"
+  },
+  {
+   "id": "vw-the-force",
+   "brand": "Volkswagen",
+   "title": "The Force",
+   "year": 2011,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "kids",
+    "comedy",
+    "super-bowl",
+    "story"
+   ],
+   "note": "A kid in a costume tries to use 'the Force'; dad secretly helps with the remote start. Character want → failure → product-powered payoff, in 60s.",
+   "dir": "",
+   "added": "",
+   "yt": "PnJkhlozVAc"
+  },
+  {
+   "id": "jl-bear-hare",
+   "brand": "John Lewis",
+   "title": "The Bear & the Hare",
+   "year": 2013,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "animation",
+    "holiday",
+    "emotional",
+    "hand-drawn"
+   ],
+   "note": "A hand-drawn animal fable for Christmas. A timeless storybook look that ages well.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "jl-man-on-moon",
+   "brand": "John Lewis",
+   "title": "Man on the Moon",
+   "year": 2015,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "holiday",
+    "emotional",
+    "loneliness",
+    "cinematic"
+   ],
+   "note": "A girl sees a lonely old man on the moon through a telescope. One empathetic image built into a whole campaign.",
+   "dir": "",
+   "added": "",
+   "yt": "Xp7sn-syzfI"
+  },
+  {
+   "id": "chipotle-back",
+   "brand": "Chipotle",
+   "title": "Back to the Start",
+   "year": 2011,
+   "cat": "film",
+   "len": "2:20",
+   "tags": [
+    "stop-motion",
+    "animation",
+    "music-driven",
+    "food",
+    "story"
+   ],
+   "note": "A stop-motion farmer's journey set to a cover song. Animated brand films can carry big ideas with no dialogue.",
+   "dir": "",
+   "added": "",
+   "yt": "S1zXGWK_knQ"
+  },
+  {
+   "id": "chipotle-scarecrow",
+   "brand": "Chipotle",
+   "title": "The Scarecrow",
+   "year": 2013,
+   "cat": "film",
+   "len": "3:00",
+   "tags": [
+    "animation",
+    "dystopian",
+    "food",
+    "music-driven"
+   ],
+   "note": "A dystopian factory world with a hopeful hero. World-building that feels like a game trailer.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "oldspice-man",
+   "brand": "Old Spice",
+   "title": "The Man Your Man Could Smell Like",
+   "year": 2010,
+   "cat": "ad",
+   "len": "0:30",
+   "tags": [
+    "one-take",
+    "comedy",
+    "dialogue",
+    "transitions"
+   ],
+   "note": "A seamless single take with in-camera set changes. AI version: one continuous camera push with the world transforming behind the speaker.",
+   "dir": "",
+   "added": "",
+   "yt": "owGykVbfgUE"
+  },
+  {
+   "id": "volvo-epic-split",
+   "brand": "Volvo Trucks",
+   "title": "The Epic Split",
+   "year": 2013,
+   "cat": "ad",
+   "len": "1:15",
+   "tags": [
+    "one-take",
+    "stunt",
+    "music-driven",
+    "precision",
+    "sunrise"
+   ],
+   "note": "Van Damme does the splits between two reversing trucks at sunrise. One stunt, one slow reveal, one song: maximum simplicity.",
+   "dir": "Andreas Nilsson",
+   "added": "",
+   "yt": "M7FIvfx5J10"
+  },
+  {
+   "id": "dove-sketches",
+   "brand": "Dove",
+   "title": "Real Beauty Sketches",
+   "year": 2013,
+   "cat": "film",
+   "len": "3:00",
+   "tags": [
+    "documentary",
+    "emotional",
+    "social-experiment",
+    "people"
+   ],
+   "note": "An experiment format: a hidden sketch artist and two descriptions. Documentary-style structure gives instant credibility.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "always-likeagirl",
+   "brand": "Always",
+   "title": "#LikeAGirl",
+   "year": 2014,
+   "cat": "film",
+   "len": "3:00",
+   "tags": [
+    "documentary",
+    "social-experiment",
+    "women"
+   ],
+   "note": "Ask the question on camera, let real answers carry it. Interview-led films need a twist halfway through.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "bk-moldy-whopper",
+   "brand": "Burger King",
+   "title": "Moldy Whopper",
+   "year": 2020,
+   "cat": "ad",
+   "len": "0:45",
+   "tags": [
+    "timelapse",
+    "food",
+    "bold",
+    "no-preservatives"
+   ],
+   "note": "A 34-day timelapse of a burger rotting. A brave, ugly visual that proves the claim. Timelapse decay and growth are easy AI wins.",
+   "dir": "",
+   "added": "",
+   "yt": "Aubn2Oh6Stg"
+  },
+  {
+   "id": "heineken-worlds-apart",
+   "brand": "Heineken",
+   "title": "Worlds Apart",
+   "year": 2017,
+   "cat": "film",
+   "len": "4:00",
+   "tags": [
+    "documentary",
+    "social-experiment",
+    "dialogue",
+    "people"
+   ],
+   "note": "Opposites build something together before learning each other's views. A strong reveal structure.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "mercedes-chicken",
+   "brand": "Mercedes-Benz",
+   "title": "Chicken (Magic Body Control)",
+   "year": 2013,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "animals",
+    "comedy",
+    "product-demo",
+    "music-driven"
+   ],
+   "note": "Chickens' heads stay perfectly still while their bodies move: a product benefit shown through a natural metaphor. Find the animal or object that already 'does' your feature.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "lacoste-timeless",
+   "brand": "Lacoste",
+   "title": "Timeless",
+   "year": 2017,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "romance",
+    "time",
+    "fashion",
+    "epic",
+    "cinematic"
+   ],
+   "note": "A couple's love story jumps across eras in one continuous run. Era-hopping wardrobe changes suit AI style transfer.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "kenzo-world",
+   "brand": "Kenzo",
+   "title": "Kenzo World — My Mutant Brain",
+   "year": 2016,
+   "cat": "film",
+   "len": "3:45",
+   "tags": [
+    "dance",
+    "surreal",
+    "fashion",
+    "weird",
+    "luxury"
+   ],
+   "note": "An anti-perfume ad: wild, ugly-beautiful dance in an elegant venue. Break the category's clichés deliberately.",
+   "dir": "Spike Jonze",
+   "added": "",
+   "yt": "itqQS_gpNHM"
+  },
+  {
+   "id": "levis-odyssey",
+   "brand": "Levi's",
+   "title": "Odyssey",
+   "year": 2002,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "slow-motion",
+    "epic",
+    "running",
+    "music-driven"
+   ],
+   "note": "Two people smash through walls, then run up trees into the night sky. Slow motion and a classical score make it mythic.",
+   "dir": "Jonathan Glazer",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "levis-circles",
+   "brand": "Levi's",
+   "title": "Circles",
+   "year": 2017,
+   "cat": "ad",
+   "len": "2:00",
+   "tags": [
+    "dance",
+    "music-driven",
+    "community",
+    "one-take",
+    "edit"
+   ],
+   "note": "Different people dancing to the same track, cut on the rhythm. Edit on the beat and shoot diverse faces.",
+   "dir": "Edgar Wright",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "google-parisian-love",
+   "brand": "Google",
+   "title": "Parisian Love",
+   "year": 2009,
+   "cat": "ad",
+   "len": "0:52",
+   "tags": [
+    "screen-only",
+    "story",
+    "minimal",
+    "romance"
+   ],
+   "note": "A love story told only through search queries. A screen-only story is cheap to make and deeply human.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "google-loretta",
+   "brand": "Google",
+   "title": "Loretta",
+   "year": 2020,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "emotional",
+    "voiceover",
+    "memory",
+    "super-bowl"
+   ],
+   "note": "An old man uses the assistant to remember his late wife. Product use cases framed as memory and love.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "google-gemini-home",
+   "brand": "Google",
+   "title": "Gemini — New Home",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "ai",
+    "emotional",
+    "family",
+    "super-bowl"
+   ],
+   "note": "Rated the top Super Bowl LX ad by the Kellogg panel. It shows the AI imagining a new home for a family. Put the 'feature' in an emotional moment.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "coke-masterpiece",
+   "brand": "Coca-Cola",
+   "title": "Masterpiece",
+   "year": 2023,
+   "cat": "ad",
+   "len": "1:45",
+   "tags": [
+    "art",
+    "museum",
+    "vfx",
+    "mixed-media",
+    "hand-off"
+   ],
+   "note": "Famous paintings pass a Coke from frame to frame, each in its own art style. A style-hopping relay is a perfect AI showcase.",
+   "dir": "",
+   "added": "",
+   "yt": "VGa1imApfdg"
+  },
+  {
+   "id": "coke-happiness-factory",
+   "brand": "Coca-Cola",
+   "title": "Happiness Factory",
+   "year": 2006,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "cgi",
+    "fantasy",
+    "world-building",
+    "whimsical"
+   ],
+   "note": "The fantasy world inside a vending machine. Build a miniature universe around one ordinary object.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "evian-roller-babies",
+   "brand": "Evian",
+   "title": "Roller Babies",
+   "year": 2009,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "cgi",
+    "babies",
+    "dance",
+    "viral"
+   ],
+   "note": "CGI babies roller-skating to hip-hop. Absurd and joyful; the brand line 'live young' is acted out literally.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "tmobile-dance",
+   "brand": "T-Mobile",
+   "title": "Life's for Sharing — Dance",
+   "year": 2009,
+   "cat": "ad",
+   "len": "2:40",
+   "tags": [
+    "flash-mob",
+    "documentary",
+    "music-driven",
+    "crowd"
+   ],
+   "note": "A flash mob in a train station, filmed with hidden cameras. Spectacle captured as candid reality.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "vw-piano-stairs",
+   "brand": "Volkswagen",
+   "title": "The Fun Theory — Piano Stairs",
+   "year": 2009,
+   "cat": "film",
+   "len": "1:50",
+   "tags": [
+    "social-experiment",
+    "music",
+    "city",
+    "behaviour"
+   ],
+   "note": "Turn subway stairs into a piano and watch behavior change. A great idea is often one small intervention.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "metro-dumb-ways",
+   "brand": "Metro Trains",
+   "title": "Dumb Ways to Die",
+   "year": 2012,
+   "cat": "music",
+   "len": "3:00",
+   "tags": [
+    "animation",
+    "music-driven",
+    "dark-comedy",
+    "psa"
+   ],
+   "note": "A cute characters + dark humor + catchy song formula. A safety PSA that people actually shared.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "bud-puppy-love",
+   "brand": "Budweiser",
+   "title": "Puppy Love",
+   "year": 2014,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "animals",
+    "emotional",
+    "super-bowl",
+    "friendship"
+   ],
+   "note": "A puppy and a Clydesdale. Pure story, no product shot needed. Animal friendship arcs work at any length.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "bud-lost-dog",
+   "brand": "Budweiser",
+   "title": "Lost Dog",
+   "year": 2015,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "animals",
+    "emotional",
+    "super-bowl",
+    "rescue",
+    "music-driven"
+   ],
+   "note": "Lost → danger → rescue in 60s, set to a slow cover of a pop song. A classic three-act structure in miniature.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "bud-american-icons",
+   "brand": "Budweiser",
+   "title": "American Icons",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "nostalgia",
+    "clydesdales",
+    "americana"
+   ],
+   "note": "One of the highest-rated spots of Super Bowl LX. Heritage imagery used with restraint.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "chanel-no5-film",
+   "brand": "Chanel",
+   "title": "No.5 — The Film",
+   "year": 2004,
+   "cat": "film",
+   "len": "3:00",
+   "tags": [
+    "luxury",
+    "romance",
+    "epic",
+    "fashion",
+    "baz"
+   ],
+   "note": "A blockbuster-scale romance for a perfume, with Nicole Kidman. Luxury storytelling: the product is a feeling, not an object.",
+   "dir": "Baz Luhrmann",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "cartier-odyssee",
+   "brand": "Cartier",
+   "title": "L'Odyssée de Cartier",
+   "year": 2012,
+   "cat": "film",
+   "len": "3:30",
+   "tags": [
+    "luxury",
+    "panther",
+    "epic",
+    "cgi",
+    "journey"
+   ],
+   "note": "A panther travels across worlds as the brand's history. Use one recurring hero animal or object to guide the viewer through eras.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ikea-lamp",
+   "brand": "IKEA",
+   "title": "Lamp",
+   "year": 2002,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "comedy",
+    "melancholy",
+    "rain",
+    "twist"
+   ],
+   "note": "A sad discarded lamp in the rain, then a guy breaks the fourth wall: 'it has no feelings'. Set up an emotion, then puncture it.",
+   "dir": "Spike Jonze",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "samsung-ostrich",
+   "brand": "Samsung",
+   "title": "Ostrich",
+   "year": 2016,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "animals",
+    "vr",
+    "dream",
+    "emotional",
+    "cgi"
+   ],
+   "note": "An ostrich learns to fly through VR. A 'dream unlocked by tech' arc with a clear emotional climb.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "android-furever",
+   "brand": "Android",
+   "title": "Friends Furever",
+   "year": 2015,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "animals",
+    "montage",
+    "music-driven",
+    "viral"
+   ],
+   "note": "A montage of unlikely animal friendships expresses 'be together, not the same'. Visually cheap, emotionally rich.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ua-rule-yourself",
+   "brand": "Under Armour",
+   "title": "Rule Yourself (Michael Phelps)",
+   "year": 2016,
+   "cat": "ad",
+   "len": "1:30",
+   "tags": [
+    "sport",
+    "dark",
+    "grind",
+    "olympics",
+    "music-driven"
+   ],
+   "note": "The unglamorous grind before the glory: ice baths, cupping, dark pools. Moody low-key lighting suits AI cinematography.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ua-misty",
+   "brand": "Under Armour",
+   "title": "I Will What I Want (Misty Copeland)",
+   "year": 2014,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "ballet",
+    "voiceover",
+    "rejection",
+    "sport"
+   ],
+   "note": "A rejection letter read aloud over powerful dance. Contrasting text and image creates tension.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "beats-game-before",
+   "brand": "Beats by Dre",
+   "title": "The Game Before the Game",
+   "year": 2014,
+   "cat": "film",
+   "len": "5:00",
+   "tags": [
+    "football",
+    "rituals",
+    "music-driven",
+    "world-cup",
+    "montage"
+   ],
+   "note": "Pre-match rituals of players and fans, cut to music. A 'behind the moment' angle on a big event.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ps-double-life",
+   "brand": "PlayStation",
+   "title": "Double Life",
+   "year": 1999,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "monologue",
+    "faces",
+    "gaming",
+    "dark"
+   ],
+   "note": "Ordinary people in a row of tight portraits share one monologue about their secret gaming lives. A faces-plus-monologue format is cheap and powerful.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "gears-mad-world",
+   "brand": "Gears of War",
+   "title": "Mad World",
+   "year": 2006,
+   "cat": "promo",
+   "len": "1:00",
+   "tags": [
+    "trailer",
+    "game",
+    "melancholy",
+    "music-contrast",
+    "cgi"
+   ],
+   "note": "A brutal game trailer cut to a soft, sad song. Music that works against the action creates emotion.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "bmw-hire",
+   "brand": "BMW Films",
+   "title": "The Hire",
+   "year": 2001,
+   "cat": "short",
+   "len": "7:00",
+   "tags": [
+    "car",
+    "action",
+    "short-film",
+    "series"
+   ],
+   "note": "A series of branded action short films that set the template for branded content. Look at how the car becomes a character.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ok-go-treadmills",
+   "brand": "OK Go",
+   "title": "Here It Goes Again",
+   "year": 2006,
+   "cat": "music",
+   "len": "3:00",
+   "tags": [
+    "one-take",
+    "choreography",
+    "diy",
+    "viral"
+   ],
+   "note": "Treadmill choreography in a single take, made on a near-zero budget. Constraints breed ideas.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "ok-go-pass",
+   "brand": "OK Go",
+   "title": "This Too Shall Pass (Rube Goldberg)",
+   "year": 2010,
+   "cat": "music",
+   "len": "4:00",
+   "tags": [
+    "one-take",
+    "chain-reaction",
+    "practical",
+    "music-driven"
+   ],
+   "note": "A warehouse-sized chain reaction synced to a song. A rhythm-synced chain reaction would make a strong AI prompt challenge.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "lights-out",
+   "brand": "David F. Sandberg",
+   "title": "Lights Out",
+   "year": 2013,
+   "cat": "short",
+   "len": "2:40",
+   "tags": [
+    "horror",
+    "micro-short",
+    "minimal",
+    "light"
+   ],
+   "note": "A full horror concept in under 3 minutes with one actor and one light switch. Micro-shorts need a single rule.",
+   "dir": "David F. Sandberg",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "black-hole",
+   "brand": "Future Shorts",
+   "title": "The Black Hole",
+   "year": 2008,
+   "cat": "short",
+   "len": "3:00",
+   "tags": [
+    "dark-comedy",
+    "twist",
+    "office",
+    "minimal"
+   ],
+   "note": "A tired office worker finds a printed black hole that steals things. A one-premise escalation ending in a karmic twist.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "pes-guacamole",
+   "brand": "PES",
+   "title": "Fresh Guacamole",
+   "year": 2012,
+   "cat": "short",
+   "len": "1:40",
+   "tags": [
+    "stop-motion",
+    "food",
+    "object-swap",
+    "playful"
+   ],
+   "note": "Everyday objects stand in for food (grenades as avocados). Visual-pun substitution is perfect for AI image generation.",
+   "dir": "PES",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "pes-spaghetti",
+   "brand": "PES",
+   "title": "Western Spaghetti",
+   "year": 2008,
+   "cat": "short",
+   "len": "1:40",
+   "tags": [
+    "stop-motion",
+    "food",
+    "object-swap",
+    "playful"
+   ],
+   "note": "Bubble wrap as boiling water, Rubik's cubes as garlic. Steal the method: make a recipe out of objects that look the part.",
+   "dir": "PES",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "pixels-jean",
+   "brand": "Patrick Jean",
+   "title": "Pixels",
+   "year": 2010,
+   "cat": "short",
+   "len": "2:30",
+   "tags": [
+    "8-bit",
+    "city",
+    "vfx",
+    "nostalgia",
+    "invasion"
+   ],
+   "note": "Retro game characters invade New York and pixelate it. Mash up a nostalgic style with a real setting.",
+   "dir": "Patrick Jean",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "toysrus-origin",
+   "brand": "Toys \"R\" Us",
+   "title": "The Origin Story",
+   "year": 2024,
+   "cat": "ai",
+   "len": "1:06",
+   "tags": [
+    "sora",
+    "origin-story",
+    "nostalgia",
+    "brand-history"
+   ],
+   "note": "One of the first brand films made with Sora. Study how the uncanny moments are hidden with short cuts and a narrated arc.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "shykids-airhead",
+   "brand": "shy kids",
+   "title": "Air Head",
+   "year": 2024,
+   "cat": "ai",
+   "len": "1:20",
+   "tags": [
+    "sora",
+    "character",
+    "whimsical",
+    "voiceover"
+   ],
+   "note": "A man with a balloon for a head. The character design hides face-consistency problems, a clever AI workaround. Plan characters around the tool's limits.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "trillo-hardest-part",
+   "brand": "Paul Trillo / Washed Out",
+   "title": "The Hardest Part",
+   "year": 2024,
+   "cat": "ai",
+   "len": "4:00",
+   "tags": [
+    "sora",
+    "infinite-zoom",
+    "music-driven",
+    "life-story",
+    "one-take"
+   ],
+   "note": "A whole life told in one endless forward camera push. A strong idea of 'continuous zoom through time' that suits AI generation.",
+   "dir": "Paul Trillo",
+   "added": "",
+   "yt": "-Nb-M1GAOX8"
+  },
+  {
+   "id": "kalshi-nba",
+   "brand": "Kalshi",
+   "title": "NBA Finals Spot",
+   "year": 2025,
+   "cat": "ai",
+   "len": "0:30",
+   "tags": [
+    "veo",
+    "chaos",
+    "comedy",
+    "fast-cut",
+    "low-budget"
+   ],
+   "note": "A fully AI ad, reportedly made in days for a tiny budget. Quick absurd vignettes with on-screen dialogue. Speed and volume beat perfection.",
+   "dir": "PJ Accetturo",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "coke-ai-holidays",
+   "brand": "Coca-Cola",
+   "title": "Holidays Are Coming (AI)",
+   "year": 2024,
+   "cat": "ai",
+   "len": "1:00",
+   "tags": [
+    "remake",
+    "holiday",
+    "trucks",
+    "controversial"
+   ],
+   "note": "An AI remake of a classic, and it got plenty of backlash. Study what reads as 'soulless' (faces, warmth) and fix that in your own work.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "heinz-ai-ketchup",
+   "brand": "Heinz",
+   "title": "A.I. Ketchup",
+   "year": 2022,
+   "cat": "ai",
+   "len": "1:00",
+   "tags": [
+    "dall-e",
+    "brand-test",
+    "experiment",
+    "food"
+   ],
+   "note": "They asked an image AI to draw 'ketchup' and it drew Heinz. Using AI as a brand-truth experiment is a meta idea you could flip.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "pringles-sabrina",
+   "brand": "Pringles",
+   "title": "Pringleleo",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "celebrity",
+    "comedy",
+    "pop"
+   ],
+   "note": "A Super Bowl LX standout starring Sabrina Carpenter. Celebrity plus product built into the joke itself.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "hellmanns-samberg",
+   "brand": "Hellmann's",
+   "title": "Meal Diamond",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "comedy",
+    "surreal",
+    "celebrity"
+   ],
+   "note": "Andy Samberg as a deli-haunting cryptid. Weird premise, total commitment.",
+   "dir": "",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "instacart-stiller",
+   "brand": "Instacart",
+   "title": "Bananas",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "comedy",
+    "music",
+    "celebrity"
+   ],
+   "note": "Ben Stiller and Benson Boone, directed by Spike Jonze. Look at the comic timing and musical staging.",
+   "dir": "Spike Jonze",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "pepsi-choice",
+   "brand": "Pepsi",
+   "title": "The Choice",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "polar-bear",
+    "rivalry",
+    "comedy",
+    "queen"
+   ],
+   "note": "A polar bear 'defects' in a jab at a rival brand, directed by Taika Waititi. Turn a competitor's mascot against them.",
+   "dir": "Taika Waititi",
+   "added": "",
+   "yt": ""
+  },
+  {
+   "id": "squarespace-stone",
+   "brand": "Squarespace",
+   "title": "Emma Stone spot",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:00",
+   "tags": [
+    "super-bowl",
+    "black-white",
+    "deadpan",
+    "celebrity"
+   ],
+   "note": "A deadpan, black-and-white, art-house-feeling spot with Emma Stone, directed by Yorgos Lanthimos. Bring an auteur style into a 60s ad.",
+   "dir": "Yorgos Lanthimos",
+   "added": "",
+   "yt": ""
+  }
+ ]
+}

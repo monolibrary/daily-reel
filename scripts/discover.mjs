@@ -180,7 +180,7 @@ await pool(sources, 3, async src => {
 });
 
 console.log("4) searches: the people credited on your references + your themes");
-const EXTRA = [
+const EXTRA_SETS = [[
   "opening title sequence", "main title sequence film", "tv series opening credits", "title sequence design",
   "guy ritchie scene", "snatch scene", "lock stock and two smoking barrels scene", "the gentlemen scene", "rocknrolla scene",
   "tarantino scene 4k", "scorsese scene", "goodfellas scene", "casino 1995 scene", "fincher opening scene", "la haine scene", "gaspar noe",
@@ -192,7 +192,19 @@ const EXTRA = [
   "nicolas winding refn commercial", "director's cut commercial", "music video directed by", "short film cinematic",
   "fifa official launch trailer", "playstation commercial", "xbox commercial cinematic", "call of duty live action trailer",
   "a24 official trailer", "neon official trailer", "mubi official trailer", "criterion trailer",
-  "dollar shave club ad", "coinbase ad", "liquid death ad", "heineken commercial", "guinness commercial", "old spice commercial"];
+  "dollar shave club ad", "coinbase ad", "liquid death ad", "heineken commercial", "guinness commercial", "old spice commercial"],
+ ["fight club scene", "se7en scene", "zodiac scene", "the social network opening scene", "gone girl scene", "mindhunter opening",
+  "pulp fiction scene", "reservoir dogs scene", "jackie brown scene", "once upon a time in hollywood scene", "inglourious basterds scene",
+  "taxi driver scene", "mean streets scene", "the irishman scene", "wolf of wall street scene", "scarface scene", "carlito's way scene",
+  "layer cake scene", "sexy beast scene", "in bruges scene", "kill bill scene", "oldboy hallway scene", "city of god scene",
+  "requiem for a dream montage", "enter the void", "irreversible gaspar noe", "only god forgives scene", "the neon demon scene",
+  "john wick scene", "collateral scene", "baby driver opening scene", "edgar wright transitions", "boogie nights scene", "magnolia scene",
+  "top boy scene", "peaky blinders scene", "the bear opening", "succession opening credits", "true detective opening credits",
+  "nike football commercial", "adidas commercial", "beats by dre commercial", "apple shot on iphone film", "squarespace super bowl",
+  "jacquemus film", "gucci campaign film", "prada film", "bottega veneta film", "aime leon dore", "kith campaign", "stussy film",
+  "travis scott music video", "kanye west music video", "a$ap rocky music video", "justice music video", "daft punk music video",
+  "the chemical brothers music video", "massive attack music video", "radiohead music video", "kendrick lamar music video"]];
+const EXTRA = EXTRA_SETS[Math.floor(Date.now() / 3600e3) % EXTRA_SETS.length];   // alternate sets hour to hour
 const qs = [...[...credits].filter(c => c.trim().split(/\s+/).length >= 2).slice(0, 40).map(c => ['"' + c + '"', "more by " + c]),
   ...EXTRA.map(q => [q, "search: " + q])];
 await pool(qs, 2, async ([q, label]) => {

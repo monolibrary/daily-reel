@@ -74,7 +74,7 @@ function cards(data) {
 }
 
 /* ---------- taste profile from the references ---------- */
-const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two").split(" "));
+const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two launch scene scenes clip clips movie movies movieclips 1080p 720p 4k remastered intro opening title titles sequence credits official audio extended exclusive coming soon best ever great").split(" "));
 const terms = s => String(s || "").toLowerCase().replace(/https?:\/\/\S+/g, " ").replace(/[^a-z0-9à-ÿ' ]/g, " ").split(/\s+/).map(w => w.replace(/^'+|'+$/g, "")).filter(w => w.length > 2 && w.length < 24 && !STOP.has(w) && !/^\d+$/.test(w));
 const CREDIT = /(?:^|\n|\||•)\s*(?:directed by|director|dir\.|production company|prod\.? co\.?|agency|creative director|dp|director of photography|cinematographer)\s*[:\-–—]?\s*([^\n|•·,/()]{3,40})/gi;
 const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains|remarks|keynote|debate|honest|bootcamp|webinar|summit|panel|earnings|recap|preview show|press|fights 20\d\d|\bgoat\b|what if)/i;
@@ -83,8 +83,8 @@ const tw = {}, df = {}, credits = new Set(), seedCh = new Map(), queries = [];
 const recs = new Map(); // yt -> {card, via:Set, hops}
 function addRec(c, via, hop, root) {
   if (!c.yt || SWIPE.includes(c.yt)) return;
-  const r = recs.get(c.yt) || { c, via: new Set(), hop, root };
-  r.via.add(via); r.hop = Math.min(r.hop, hop);
+  const r = recs.get(c.yt) || { c, via: new Set(), hop, root, roots: new Set() };
+  r.via.add(via); r.roots.add(root); r.hop = Math.min(r.hop, hop);
   if (!r.c.sec && c.sec) r.c = { ...r.c, ...c };
   recs.set(c.yt, r);
 }
@@ -132,6 +132,9 @@ const sim = (title, extra = "") => { const ws = [...terms(title).map(w => [w, 2]
 console.log("   taste terms:", Object.keys(T).slice(0, 15).join(", "));
 console.log("   credits:", [...credits].slice(0, 12).join(" | "));
 
+for (const v of ["871675519", "1073127699", "1056023905", "409128263", "1115121708"]) {
+  try { const o = JSON.parse(await get("https://vimeo.com/api/oembed.json?url=" + encodeURIComponent("https://vimeo.com/" + v))); if (o.author_name) credits.add(o.author_name); console.log("   vimeo ref:", o.author_name, "|", o.title); } catch {}
+}
 console.log("2) second hop: Up next beside the closest first-hop videos");
 const hop1 = [...recs.values()].filter(r => r.c.sec >= 30 && r.c.sec <= 420 && !SLOP.test(r.c.title))
   .map(r => ({ r, s: sim(r.c.title, r.c.ch) + r.via.size })).sort((a, b) => b.s - a.s).slice(0, 110);
@@ -147,7 +150,7 @@ await pool([...seedCh.keys()], 3, async chId => {
 });
 
 console.log("4) searches: the people credited on your references + your themes");
-const qs = [...[...credits].slice(0, 30).map(c => ['"' + c + '"', "more by " + c]), ...LIVE_Q.sort(() => Math.random() - .5).slice(0, 35).map(q => [q, q])];
+const qs = [...credits].slice(0, 40).map(c => ['"' + c + '"', "more by " + c]);
 await pool(qs, 2, async ([q, label]) => {
   const page = await get("https://www.youtube.com/results?hl=en&gl=US&sp=EgIQAQ%253D%253D&search_query=" + encodeURIComponent(q));
   const data = jsonAfter(page, "ytInitialData = "); if (!data) return;
@@ -160,16 +163,21 @@ const seedNames = new Set([...seedCh.values()].map(n => n.toLowerCase()));
 const generic = new Set([...chSeeds].filter(([ch, ids]) => ids.size >= 5 && !seedNames.has(ch.toLowerCase())).map(([ch]) => ch));
 console.log("   generic filler channels (ignored):", [...generic].slice(0, 25).join(" | "));
 const out = [];
-for (const { c, via, hop, root } of recs.values()) {
+for (const { c, via, hop, root, roots } of recs.values()) {
   if (curated.has(c.yt) || SLOP.test(c.title) || !c.title || generic.has(c.ch)) continue;
   if (c.sec && (c.sec < 30 || c.sec > 420)) continue;          // 30s – 7min
   if (!c.sec && hop !== 1) continue;                           // unknown length only from channel feeds
   const fromSeedCh = seedNames.has((c.ch || "").toLowerCase());
   const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short)/i;
   if (fromSeedCh && hop === 1 && !FILMY.test(c.title) && sim(c.title, c.ch) < .8) continue;   // channel uploads must be films/ads, not talks or recaps
-  const m = sim(c.title, c.ch), n = Math.min(via.size, 4);
-  if (!fromSeedCh && m < .45 && !(n >= 2 && hop <= 2)) continue;   // must look like your taste, come from your channels, or sit beside 2+ of your references
-  const s = m * 1.4 + n * .5 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .4 : 0) + Math.log10((c.views || 0) + 10) * .15 + (c.age < 60 ? .5 : 0);
+  const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:")).length, n = Math.min(k, 4);
+  const byCredit = [...roots].some(x => String(x).startsWith("q:"));
+  // a find must be tied to your references: from their channels, next to 2+ of them,
+  // directly next to one AND sharing its subject, or a search for someone credited on them
+  const ok = fromSeedCh || n >= 2 || (hop === 1 && m >= .6) || (byCredit && m >= .3);
+  if (!ok) continue;
+  if ((c.views || 0) > 25e6 && n < 3 && !fromSeedCh) continue;      // mega-popular stuff YouTube shows beside everything
+  const s = m * 1.4 + n * .9 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .5 : 0) + Math.log10((c.views || 0) + 10) * .1 + (c.age < 60 ? .5 : 0);
   out.push({ yt: c.yt, title: c.title.slice(0, 140), ch: (c.ch || "").slice(0, 60), sec: c.sec || 0, views: c.views || 0, age: Math.round(c.age), via: [...via][0], n: via.size, s: +s.toFixed(3), root });
 }
 out.sort((a, b) => b.s - a.s);
@@ -189,6 +197,6 @@ for (let i = 0; i < 90; i++) for (const l of roots) {
 keep.forEach(v => delete v.root);
 console.log(`done: ${recs.size} candidates → ${keep.length} kept · requests ${stats.req}, failed ${stats.fail}`);
 console.log("top 40:"); keep.slice(0, 40).forEach(v => console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60), "| via", v.via.slice(0, 40)));
-console.log("random sample:"); for (let i = 0; i < 15 && keep.length; i++) { const v = keep[Math.floor(Math.random() * keep.length)]; console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60)); }
+console.log("random sample:"); for (let i = 0; i < 40 && keep.length; i++) { const v = keep[Math.floor(Math.random() * keep.length)]; console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60)); }
 if (keep.length < 50 && prev.items.length > keep.length) { console.log("too few results this run, keeping the previous stock"); process.exit(0); }
 fs.writeFileSync("discover.json", JSON.stringify({ updated: new Date().toISOString(), items: keep }) + "\n");

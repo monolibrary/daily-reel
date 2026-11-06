@@ -775,9 +775,8 @@ function pickSource(){
   const opts=[];
   if(taste&&taste.queries.length)opts.push([()=>rnd(taste.queries),.45]);
   if(taste&&taste.credits.length)opts.push([()=>rnd(taste.credits),.3]);
-  if(taste&&Object.keys(taste.terms).length>3)opts.push([topTermQuery,.15]);
-  opts.push([()=>{const q=rnd(LIVE_Q);return {q,label:q}},.1]);
-  const s=wpick(opts)()||{q:rnd(LIVE_Q)};
+  if(!opts.length)return null;
+  const s=wpick(opts)();if(!s)return null;
   const r=Math.random();
   const order=r<.35?"date":r<.75?"relevance":"viewCount";          // date = just posted, like a subscription feed
   return {type:"search",q:s.q,label:s.label||s.q,order,kind:"taste",trusted:false};
@@ -834,6 +833,8 @@ let discoverAt=0;
 async function loadDiscover(){
   try{
     const j=await (await fetch("discover.json?t="+Date.now(),{cache:"no-store"})).json();discoverAt=Date.now();
+    const cur=new Set((j.items||[]).map(x=>x&&x.yt));
+    livePool=livePool.filter(v=>cur.has(v.yt));                       // drop picks the latest stock no longer stands behind
     const curated=new Set(L.map(v=>v.yt).filter(Boolean)), swipe=new Set(SWIPE_YT), have=new Set(livePool.map(v=>v.yt)), hidden=new Set(prefs.hidden||[]);
     const add=(j.items||[]).filter(x=>x&&/^[A-Za-z0-9_-]{11}$/.test(x.yt)&&!liveSeen.has(x.yt)&&!curated.has(x.yt)&&!swipe.has(x.yt)&&!have.has(x.yt)&&!blockedCh.has(x.ch)&&!hidden.has("yt-"+x.yt))
       .map(x=>({id:"yt-"+x.yt,live:true,yt:x.yt,brand:String(x.ch||"YouTube").slice(0,60),title:String(x.title||"").slice(0,140),

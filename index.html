@@ -464,7 +464,7 @@ function renderSaved(){
    Modal
    ============================================================ */
 let modalId=null, noteTimer=null;
-function findV(id){return allVideos().find(v=>v.id===id)||liveShown[id]||(saves[id]&&saves[id].v)||(id.startsWith("spark-")&&findSpark(id))}
+function findV(id){return allVideos().find(v=>v.id===id)||liveShown[id]||(typeof approvedAll!=="undefined"&&approvedAll.find(v=>v.id===id))||livePool.find(v=>v.id===id)||(saves[id]&&saves[id].v)||(id.startsWith("spark-")&&findSpark(id))}
 function findSpark(id){const n=+id.split("-").pop();const s=makeSpark(n);return s.id===id?s:null}
 function openModal(id){
   const v=findV(id);if(!v)return;
@@ -827,7 +827,7 @@ function replayLive(n){
   const inGrid=new Set([...document.querySelectorAll("#grid .card")].map(e=>e.dataset.id));
   const order=[...liveSeen];const pos=new Map(order.map((y,i)=>[y,i]));
   const pick=approvedAll.filter(v=>!inGrid.has(v.id)).sort((a,b)=>(pos.has(a.yt)?pos.get(a.yt):-1)-(pos.has(b.yt)?pos.get(b.yt):-1)).slice(0,n);
-  pick.forEach(v=>{liveSeen.delete(v.yt);liveSeen.add(v.yt)});LS.set("dr_liveseen",[...liveSeen].slice(-4000));
+  pick.forEach(v=>{liveSeen.delete(v.yt);liveSeen.add(v.yt);liveShown[v.id]=v});LS.set("dr_liveseen",[...liveSeen].slice(-4000));
   return pick;
 }
 async function loadDiscover(){

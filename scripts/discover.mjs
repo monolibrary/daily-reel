@@ -67,7 +67,7 @@ function cards(data) {
       const rows = (md.metadata?.contentMetadataViewModel?.metadataRows || []).flatMap(r => (r.metadataParts || []).map(p => p.text?.content || ""));
       let sec = 0; walk(l.contentImage || {}, x => { if (x.thumbnailBadgeViewModel && /^\d+:\d\d/.test(x.thumbnailBadgeViewModel.text || "")) sec = secs(x.thumbnailBadgeViewModel.text); });
       const v = rows.find(t => /views?$/i.test(t)) || "", a = rows.find(t => /ago$/i.test(t)) || "";
-      out.push({ yt: l.contentId, title: md.title?.content || "", ch: rows[0] || "", chId: "", sec, views: views(v), age: ageDays(a) });
+      out.push({ yt: l.contentId, title: md.title?.content || "", ch: rows.find(t => t && !/views?$|ago$|watching|^\d/i.test(t)) || "", chId: "", sec, views: views(v), age: ageDays(a) });
     }
   });
   return out;
@@ -77,7 +77,7 @@ function cards(data) {
 const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two").split(" "));
 const terms = s => String(s || "").toLowerCase().replace(/https?:\/\/\S+/g, " ").replace(/[^a-z0-9à-ÿ' ]/g, " ").split(/\s+/).map(w => w.replace(/^'+|'+$/g, "")).filter(w => w.length > 2 && w.length < 24 && !STOP.has(w) && !/^\d+$/.test(w));
 const CREDIT = /(?:^|\n|\||•)\s*(?:directed by|director|dir\.|production company|prod\.? co\.?|agency|creative director|dp|director of photography|cinematographer)\s*[:\-–—]?\s*([^\n|•·,/()]{3,40})/gi;
-const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains)/i;
+const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains|remarks|keynote|debate|honest|bootcamp|webinar|summit|panel|earnings|recap|preview show|press|fights 20\d\d|\bgoat\b|what if)/i;
 
 const tw = {}, df = {}, credits = new Set(), seedCh = new Map(), queries = [];
 const recs = new Map(); // yt -> {card, via:Set, hops}
@@ -142,7 +142,7 @@ await pool([...seedCh.keys()], 3, async chId => {
   const page = await get("https://www.youtube.com/channel/" + chId + "/videos?hl=en&gl=US");
   const data = jsonAfter(page, "var ytInitialData = ") || jsonAfter(page, "ytInitialData = "); if (!data) return;
   const list = cards(data).slice(0, 30);
-  list.forEach(c => addRec({ ...c, ch: c.ch || seedCh.get(chId), chId }, "new from " + seedCh.get(chId), 1, "ch:" + chId));
+  list.forEach(c => addRec({ ...c, ch: seedCh.get(chId), chId }, "new from " + seedCh.get(chId), 1, "ch:" + chId));
   console.log("   ", seedCh.get(chId), "uploads:", list.length);
 });
 
@@ -165,6 +165,8 @@ for (const { c, via, hop, root } of recs.values()) {
   if (c.sec && (c.sec < 30 || c.sec > 420)) continue;          // 30s – 7min
   if (!c.sec && hop !== 1) continue;                           // unknown length only from channel feeds
   const fromSeedCh = seedNames.has((c.ch || "").toLowerCase());
+  const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short)/i;
+  if (fromSeedCh && hop === 1 && !FILMY.test(c.title) && sim(c.title, c.ch) < .8) continue;   // channel uploads must be films/ads, not talks or recaps
   const m = sim(c.title, c.ch), n = Math.min(via.size, 4);
   if (!fromSeedCh && m < .45 && !(n >= 2 && hop <= 2)) continue;   // must look like your taste, come from your channels, or sit beside 2+ of your references
   const s = m * 1.4 + n * .5 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .4 : 0) + Math.log10((c.views || 0) + 10) * .15 + (c.age < 60 ? .5 : 0);

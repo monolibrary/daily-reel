@@ -153,7 +153,9 @@ const QUALITY = [
   "@A24", "@NEON", "@mubi", "@Netflix", "@AppleTV", "@hbo", "@SonyPictures", "@Lionsgate", "@SearchlightPictures", "@ParamountPictures", "@UniversalPictures",
   // directed music videos in the spirit of Justice / Charli XCX
   "@CharliXCX", "@kendricklamar", "@tylerthecreator", "@FKAtwigs", "@DaftPunk", "@gorillaz", "@travisscott", "@rosalia", "@stromae",
-  "@shortoftheweek"];
+  "@shortoftheweek",
+  // AI filmmakers
+  "@thedorbrothers", "@runwayml"];
 const sources = [...[...seedCh].filter(([, n]) => AUTHORS.test(n)).map(([id, n]) => ({ url: "https://www.youtube.com/channel/" + id + "/videos?hl=en&gl=US", name: n, root: "ch:" + id })),
   ...QUALITY.map(h => ({ url: "https://www.youtube.com/" + h + "/videos?hl=en&gl=US", name: "", root: "ch:" + h }))];
 await pool(sources, 3, async src => {
@@ -191,7 +193,7 @@ const EXTRA_SETS = [[
   "dave meyers music video", "ian pons jewell", "kim gehrig commercial", "wes anderson commercial", "harmony korine commercial",
   "nicolas winding refn commercial", "director's cut commercial", "music video directed by", "short film cinematic",
   "fifa official launch trailer", "playstation commercial", "xbox commercial cinematic", "call of duty live action trailer",
-  "a24 official trailer", "neon official trailer", "mubi official trailer", "criterion trailer",
+  "a24 official trailer", "neon official trailer", "mubi official trailer", "criterion trailer", "ai short film", "ai commercial", "veo 3 short film", "sora short film", "kling ai film", "ai music video",
   "dollar shave club ad", "coinbase ad", "liquid death ad", "heineken commercial", "guinness commercial", "old spice commercial"],
  ["fight club scene", "se7en scene", "zodiac scene", "the social network opening scene", "gone girl scene", "mindhunter opening",
   "pulp fiction scene", "reservoir dogs scene", "jackie brown scene", "once upon a time in hollywood scene", "inglourious basterds scene",
@@ -203,7 +205,7 @@ const EXTRA_SETS = [[
   "nike football commercial", "adidas commercial", "beats by dre commercial", "apple shot on iphone film", "squarespace super bowl",
   "jacquemus film", "gucci campaign film", "prada film", "bottega veneta film", "aime leon dore", "kith campaign", "stussy film",
   "travis scott music video", "kanye west music video", "a$ap rocky music video", "justice music video", "daft punk music video",
-  "the chemical brothers music video", "massive attack music video", "radiohead music video", "kendrick lamar music video"]];
+  "the chemical brothers music video", "massive attack music video", "radiohead music video", "kendrick lamar music video", "dor brothers", "ai film festival winner", "ai generated commercial", "ai trailer cinematic"]];
 const EXTRA = EXTRA_SETS[Math.floor(Date.now() / 3600e3) % EXTRA_SETS.length];   // alternate sets hour to hour
 const qs = [...[...credits].filter(c => c.trim().split(/\s+/).length >= 2).slice(0, 40).map(c => ['"' + c + '"', "more by " + c]),
   ...EXTRA.map(q => [q, "search: " + q])];

@@ -104,6 +104,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(11,11,12,.86);backdrop-f
 .poster .thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transform:scale(1.02)}
 .poster.hasthumb .pbrand,.poster.hasthumb .ptitle{display:none}
 .poster.hasthumb::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.55))}
+.poster .badge.cat.is-live{background:rgba(255,77,61,.92);color:#fff}
 .poster .badge.play-ok{right:9px;top:calc(7% + 8px);background:rgba(255,77,61,.92);color:#fff}
 .player{position:relative;aspect-ratio:16/9;background:#000;border-radius:18px 18px 0 0;overflow:hidden}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -201,7 +202,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(11,11,12,.86);backdrop-f
    LIBRARY — curated short ads, brand films, promos, shorts.
    len = approx running time. New entries also arrive daily from the db.
    ============================================================ */
-const CATS={swipe:"📌 Swipe file",ad:"Ad",film:"Brand film",short:"Cinematic short",promo:"Promo / Trailer",ai:"AI-made",music:"Music video"};
+const CATS={live:"🔴 Live find",swipe:"📌 Swipe file",ad:"Ad",film:"Brand film",short:"Cinematic short",promo:"Promo / Trailer",ai:"AI-made",music:"Music video"};
 let L=[];  // loaded from videos.json (updated daily)
 
 /* ============================================================
@@ -264,7 +265,7 @@ function poster(v,opts={}){
     <div class="pbrand">${esc(v.brand)}</div>
     <div class="ptitle">${esc(v.title)}</div>
     <div class="lb t"></div><div class="lb b"></div>
-    <span class="badge cat">${esc(CATS[v.cat]||v.cat)}</span>${(v.yt||v.vimeo)?'<span class="badge play-ok">▶ PLAYS HERE</span>':""}
+    <span class="badge cat${v.live?" is-live":""}">${esc(CATS[v.cat]||v.cat)}</span>${(v.yt||v.vimeo)?'<span class="badge play-ok">▶ PLAYS HERE</span>':""}
     ${isNew?'<span class="badge new">NEW</span>':""}
     ${(v.len||v.year)?`<span class="badge len">${esc(v.len||"")}${v.len&&v.year?" · ":""}${v.year?esc(v.year):""}</span>`:""}
     ${opts.noplay?"":'<div class="play"><i><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></i></div>'}
@@ -336,7 +337,7 @@ function cardHTML(v){
       <div class="cbody"><div class="t"><h3>Prompt idea for today</h3><div class="by">Remix · tap for references</div></div>${starBtn(v)}</div></article>`;
   }
   return `<article class="card" data-id="${esc(v.id)}">${poster(v)}
-    <div class="cbody"><div class="t"><h3>${esc(v.title)}</h3><div class="by">${v.untitled?'<span style="color:var(--gold)">Untitled · tap to name it</span>':esc(v.brand)+(v.dir?" · dir. "+esc(v.dir):"")}</div><div class="why">${esc(v.note)}</div></div>${starBtn(v)}</div></article>`;
+    <div class="cbody"><div class="t"><h3>${esc(v.title)}</h3><div class="by">${v.untitled?'<span style="color:var(--gold)">Untitled · tap to name it</span>':esc(v.brand)+(v.dir?" · dir. "+esc(v.dir):"")}</div><div class="why">${v.live?"🔴 Live find · "+esc(v.q):esc(v.note)}</div></div>${starBtn(v)}</div></article>`;
 }
 function starBtn(v){
   const on=!!saves[v.id];
@@ -346,6 +347,10 @@ function starBtn(v){
 function renderFeed(){
   const main=$("#main");
   pass=0;sparkN=0;rendered=0;
+  if(cat==="live"){
+    $("#main").innerHTML=`<div class="dayhead"><h1>Live from <em>YouTube</em></h1><div class="meta">fresh finds every scroll<br>tuned by your stars</div></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading…</div>`;
+    more(15);observe();return;
+  }
   if(cat==="spark"){
     main.innerHTML=`<div class="dayhead"><h1>Concept <em>sparks</em></h1><div class="meta">fresh prompts every day<br>${today}</div></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading more sparks…</div>`;
     queue=[];moreSparks(18);observe();return;
@@ -369,9 +374,19 @@ function renderFeed(){
   main.innerHTML=hero+`<div class="secthead"><h2>${showHero?"RECOMMENDED FOR YOU":esc(chipLabel(cat)).toUpperCase()}</h2><div class="rule"></div><span>${Object.keys(saves).length?"tuned by your stars":"star things to tune this feed"}</span></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading more…</div>`;
   more(15);observe();
 }
+let liveWaiting=false;
 function more(n){
   const g=$("#grid");if(!g)return;
   let html="";
+  if(cat==="live"){
+    let got=0;
+    for(let i=0;i<n;i++){const v=takeLive();if(!v)break;html+=cardHTML(v);got++}
+    if(html)g.insertAdjacentHTML("beforeend",html);
+    if(got<n&&!liveWaiting){liveWaiting=true;$("#more").textContent=liveDead?"Live search is resting for today (daily YouTube limit). Curated feed still works.":"finding fresh videos on YouTube…";
+      fetchLive().then(k=>{liveWaiting=false;if(cat==="live"&&(k||livePool.length))more(n-got);else if(!k&&!liveDead)$("#more").textContent="nothing new on this search, scroll again";})}
+    g.querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
+    return;
+  }
   for(let i=0;i<n;i++){
     if(!queue.length){
       pass++;
@@ -381,6 +396,7 @@ function more(n){
     }
     const v=queue.shift();
     html+=cardHTML(v);rendered++;
+    if(cat==="all"&&!query&&rendered%3===0){const lv=takeLive();if(lv)html+=cardHTML(lv)}
     if(cat==="all"&&!query&&rendered%6===0){html+=cardHTML(makeSpark(sparkN++))}
   }
   g.insertAdjacentHTML("beforeend",html);
@@ -402,6 +418,7 @@ async function doRefresh(){
   LS.set("dr_seen",seen);
   const b0=$("#refresh");b0.classList.remove("spin");void b0.offsetWidth;b0.classList.add("spin");
   await loadLibrary();
+  if(livePool.length<15)await Promise.race([fetchLive(),new Promise(r=>setTimeout(r,2500))]);
   const fresh=allVideos().filter(v=>v.added&&!lastVisitExtra.has(v.id)).length;
   refreshN++;LS.set("dr_refresh",refreshN);
   view="feed";if(cat==="spark")cat="all";
@@ -437,7 +454,7 @@ function renderSaved(){
    Modal
    ============================================================ */
 let modalId=null, noteTimer=null;
-function findV(id){return allVideos().find(v=>v.id===id)||(saves[id]&&saves[id].v)||(id.startsWith("spark-")&&findSpark(id))}
+function findV(id){return allVideos().find(v=>v.id===id)||liveShown[id]||(saves[id]&&saves[id].v)||(id.startsWith("spark-")&&findSpark(id))}
 function findSpark(id){const n=+id.split("-").pop();const s=makeSpark(n);return s.id===id?s:null}
 function openModal(id){
   const v=findV(id);if(!v)return;
@@ -459,7 +476,7 @@ function openModal(id){
     body=`${top}
     <div class="mb"><div class="row"><div style="flex:1"><h2>${esc(v.title)}</h2><div class="by">${esc(v.brand)}${v.dir?" · directed by "+esc(v.dir):""}</div></div>${starBtn(v)}</div>
     <div class="facts"><span>${esc(CATS[v.cat]||v.cat)}</span><span>${esc(v.year)}</span><span>≈ ${esc(v.len)}</span>${(v.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join("")}</div>
-    <div class="steal"><small>STEAL THIS</small><p>${esc(v.note)}</p></div>
+    ${v.note?`<div class="steal"><small>STEAL THIS</small><p>${esc(v.note)}</p></div>`:v.live?`<div class="steal"><small>LIVE FIND</small><p>Found on YouTube for “${esc(v.q)}”${v.views?` · ${v.views.toLocaleString()} views`:""}. Star it if it's good. The feed will look for more like it.</p></div>`:""}
     <div class="acts">
       ${v.yt?`<a class="btn" href="https://www.youtube.com/watch?v=${v.yt}" target="_blank" rel="noopener">Open on YouTube</a>`:v.vimeo?`<a class="btn" href="https://vimeo.com/${v.vimeo}" target="_blank" rel="noopener">Open on Vimeo</a>`:direct?`<a class="btn pri" href="${esc(direct)}" target="_blank" rel="noopener">▶ Watch</a>`:`<a class="btn pri" href="${ytq(v)}" target="_blank" rel="noopener">▶ Find on YouTube</a>`}
       <a class="btn" href="${vimq(v)}" target="_blank" rel="noopener">Vimeo</a>
@@ -526,7 +543,7 @@ function savePrefs(){LS.set("dr_prefs",prefs);clearTimeout(prefTimer);prefTimer=
 /* ============================================================
    Events
    ============================================================ */
-const CHIPS=[["all","For You"],["play","▶ Plays here"],["new","New & 2025–26"],["ad","Ads"],["film","Brand films"],["short","Cinematic shorts"],["ai","AI-made"],["promo","Promos & trailers"],["music","Music videos"],["classic","Classics"],["spark","✦ Concept sparks"]];
+const CHIPS=[["all","For You"],["live","🔴 Live"],["play","▶ Plays here"],["new","New & 2025–26"],["ad","Ads"],["film","Brand films"],["short","Cinematic shorts"],["ai","AI-made"],["promo","Promos & trailers"],["music","Music videos"],["classic","Classics"],["spark","✦ Concept sparks"]];
 function chipLabel(c){const f=CHIPS.find(x=>x[0]===c);return f?f[1]:c}
 function renderChips(){
   $("#chips").innerHTML=view==="feed"?CHIPS.map(([k,l])=>`<button class="chip${cat===k?" on":""}" data-cat="${k}">${l}</button>`).join(""):"";
@@ -559,6 +576,82 @@ function toast(m){const el=$("#toast");el.textContent=m;el.classList.add("on");c
 function setSync(txt,ok){const s=$("#sync");s.textContent=txt;s.classList.toggle("ok",!!ok)}
 
 /* ============================================================
+   LIVE DISCOVER: fresh videos straight from YouTube, endlessly
+   ============================================================ */
+const YT_KEY="AIzaSyD3dcKKVF98Py7T6R0F7JyJY7UzCHx69T0";
+const LIVE_Q=["cinematic brand film","luxury fashion film","Nike commercial","Apple ad","adidas campaign film","perfume commercial cinematic",
+ "car commercial cinematic","AI generated commercial","Sora AI short film","Veo 3 commercial","Runway AI short film","Kling AI cinematic short",
+ "Seedance AI film","music video one take","streetwear campaign film","fashion film","spec commercial cinematic","product commercial cinematic",
+ "award winning short film","Cannes Lions film","Super Bowl commercial 2026","sneaker commercial","watch commercial cinematic","tech launch film",
+ "cinematic game trailer","energy drink commercial","coffee commercial cinematic","Mercedes-Benz commercial","Porsche film","Jordan brand film",
+ "Gucci campaign film","Prada film","Chanel film","Dior campaign film","Louis Vuitton film","Rolex film","Red Bull film","Puma commercial",
+ "New Balance campaign","Aimé Leon Dore","Highsnobiety film","Palantir film","Anduril film","PlayStation commercial","Xbox commercial",
+ "Samsung Galaxy ad","Google Pixel ad","Spotify ad","beauty commercial cinematic","skincare commercial","travel film cinematic",
+ "hotel brand film","football commercial","basketball commercial","F1 commercial","stop motion commercial","animated commercial",
+ "one take commercial","split screen commercial","film grain fashion campaign","brand anthem film","manifesto film brand","directors cut commercial",
+ "Vimeo staff pick short film","1 minute short film","AI music video","Midjourney video short film","sports brand film","Heineken commercial",
+ "Coca-Cola commercial","IKEA ad","Volvo commercial","BMW film","Audi commercial","Hermès film","Balenciaga campaign","Bottega Veneta film",
+ "Arc'teryx film","Patagonia film","Lego commercial","Netflix promo","HBO promo","A24 trailer","Apple Watch ad","iPhone ad","Mac ad"];
+let livePool=LS.get("dr_livepool",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
+let liveBusy=null, liveDead=false;
+function liveQuota(){const q=LS.get("dr_livequota",{d:"",n:0});if(q.d!==today){q.d=today;q.n=0}return q}
+const decodeEnt=(()=>{const t=document.createElement("textarea");return s=>{t.innerHTML=s||"";return t.value}})();
+function isoSec(d){const m=(d||"").match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);return m?(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0):0}
+const fmtLen=s=>Math.floor(s/60)+":"+pad(s%60);
+function pickQuery(){
+  const top=Object.entries(affinity()).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(top.length&&Math.random()<.4){
+    const k=top[Math.floor(Math.random()*top.length)][0];
+    if(k.startsWith("brand:"))return k.slice(6)+" commercial";
+    if(k.startsWith("cat:")){const c=k.slice(4);return {ad:"cinematic commercial",film:"brand film",short:"short film",promo:"launch promo film",ai:"AI generated short film",music:"cinematic music video"}[c]||"brand film"}
+    return k.replace(/-/g," ")+" commercial";
+  }
+  let q=LIVE_Q[Math.floor(Math.random()*LIVE_Q.length)];
+  if(Math.random()<.3)q+=" "+(Math.random()<.65?"2026":"2025");
+  return q;
+}
+function fetchLive(q){
+  if(liveBusy)return liveBusy;
+  if(liveDead||!YT_KEY)return Promise.resolve(0);
+  const quota=liveQuota(); if(quota.n>=80){liveDead=true;return Promise.resolve(0)}
+  liveBusy=(async()=>{
+    try{
+      q=q||pickQuery();
+      const order=["relevance","relevance","date","viewCount"][Math.floor(Math.random()*4)];
+      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration=short&safeSearch=moderate&order="+order+"&q="+encodeURIComponent(q)+"&key="+YT_KEY);
+      quota.n++;LS.set("dr_livequota",quota);
+      const j=await r.json();
+      if(j.error){if(r.status===403){liveDead=true;console.warn("live discover:",j.error.message)}return 0}
+      const curated=new Set(L.map(v=>v.yt).filter(Boolean)), pooled=new Set(livePool.map(v=>v.yt));
+      const items=(j.items||[]).filter(it=>it.id&&it.id.videoId&&!liveSeen.has(it.id.videoId)&&!curated.has(it.id.videoId)&&!pooled.has(it.id.videoId));
+      if(!items.length)return 0;
+      const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id="+items.map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
+      const det={};(d.items||[]).forEach(x=>det[x.id]=x);
+      const tags=q.toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)).slice(0,4);
+      const out=[];
+      items.forEach(it=>{
+        const x=det[it.id.videoId]; const sec=x?isoSec(x.contentDetails.duration):0;
+        if(!x||sec<20||sec>240)return;
+        const sn=it.snippet||{};
+        out.push({id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle).slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
+          year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q,views:+(x.statistics&&x.statistics.viewCount)||0});
+      });
+      for(let i=out.length-1;i>0;i--){const k=Math.floor(Math.random()*(i+1));[out[i],out[k]]=[out[k],out[i]]}
+      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool",livePool);
+      return out.length;
+    }catch(e){return 0}finally{liveBusy=null}
+  })();
+  return liveBusy;
+}
+function takeLive(){
+  const v=livePool.shift();
+  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool",livePool);
+    const arr=[...liveSeen];LS.set("dr_liveseen",arr.slice(-3000))}
+  if(livePool.length<12)fetchLive();
+  return v;
+}
+
+/* ============================================================
    Library loading (videos.json is updated daily)
    ============================================================ */
 function cleanVideo(d){
@@ -578,7 +671,7 @@ async function loadLibrary(){
   }catch(e){setSync("couldn't load library");}
 }
 $("#main").innerHTML='<div class="loadmore">loading the reel…</div>';
-loadLibrary().then(()=>{render();setTimeout(()=>{lastVisitExtra=new Set(L.filter(v=>v.added).map(v=>v.id));LS.set("dr_known_extra",[...lastVisitExtra])},15000)});
+Promise.all([loadLibrary(),livePool.length<12?Promise.race([fetchLive(),new Promise(r=>setTimeout(r,2500))]):0]).then(()=>{render();setTimeout(()=>{lastVisitExtra=new Set(L.filter(v=>v.added).map(v=>v.id));LS.set("dr_known_extra",[...lastVisitExtra])},15000)});
 </script>
 </body>
 </html>

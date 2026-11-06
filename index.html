@@ -337,7 +337,7 @@ function cardHTML(v){
       <div class="cbody"><div class="t"><h3>Prompt idea for today</h3><div class="by">Remix · tap for references</div></div>${starBtn(v)}</div></article>`;
   }
   return `<article class="card" data-id="${esc(v.id)}">${poster(v)}
-    <div class="cbody"><div class="t"><h3>${esc(v.title)}</h3><div class="by">${v.untitled?'<span style="color:var(--gold)">Untitled · tap to name it</span>':esc(v.brand)+(v.dir?" · dir. "+esc(v.dir):"")}</div><div class="why">${v.live?"🔴 Live find · "+esc(v.q):esc(v.note)}</div></div>${starBtn(v)}</div></article>`;
+    <div class="cbody"><div class="t"><h3>${esc(v.title)}</h3><div class="by">${v.untitled?'<span style="color:var(--gold)">Untitled · tap to name it</span>':esc(v.brand)+(v.dir?" · dir. "+esc(v.dir):"")}</div><div class="why">${v.live?(v.rewind?"↺ Earlier find · ":"🔴 Live find · ")+esc(v.q):esc(v.note)}</div></div>${starBtn(v)}</div></article>`;
 }
 function starBtn(v){
   const on=!!saves[v.id];
@@ -348,6 +348,7 @@ function renderFeed(){
   const main=$("#main");
   pass=0;sparkN=0;rendered=0;
   if(cat==="live"){
+    cat="all";queue=rankPass(Math.floor(Math.random()*1e6));cat="live";
     $("#main").innerHTML=`<div class="dayhead"><h1>Live from <em>YouTube</em></h1><div class="meta">fresh finds every scroll<br>tuned by your stars</div></div><div class="grid" id="grid"></div><div class="loadmore" id="more">loading…</div>`;
     more(15);observe();return;
   }
@@ -380,10 +381,22 @@ function more(n){
   let html="";
   if(cat==="live"){
     let got=0;
-    for(let i=0;i<n;i++){const v=takeLive();if(!v)break;html+=cardHTML(v);got++}
-    if(html)g.insertAdjacentHTML("beforeend",html);
-    if(got<n&&!liveWaiting){liveWaiting=true;$("#more").textContent=liveDead?"Live search is resting for today (daily YouTube limit). Curated feed still works.":"finding fresh videos on YouTube…";
-      fetchLive().then(k=>{liveWaiting=false;if(cat==="live"&&(k||livePool.length))more(n-got);else if(!k&&!liveDead)$("#more").textContent="nothing new on this search, scroll again";})}
+    for(let i=0;i<n;i++){const v=takeLive(false);if(!v)break;html+=cardHTML(v);got++}
+    if(got<n&&!liveWaiting){
+      liveWaiting=true;$("#more").textContent="finding fresh videos…";
+      fetchLive().then(k=>{
+        liveWaiting=false;if(cat!=="live")return;
+        if(k||livePool.length){more(n-got);return}
+        // nothing new available right now → keep the feed going with earlier finds + hand-picked films
+        if(!queue.length){cat="all";queue=rankPass(Math.floor(Math.random()*1e6));cat="live"}
+        let h="";for(let i=0;i<n-got;i++){const v=(i%3===2?queue.shift():takeLive(true))||queue.shift();if(v)h+=cardHTML(v)}
+        $("#grid").insertAdjacentHTML("beforeend",h);
+        $("#more").textContent=liveDead?"new finds pause until YouTube's daily limit resets, still showing earlier finds":"loading more…";
+        $("#grid").querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
+        setTimeout(()=>{const m=$("#more");if(io&&m){io.unobserve(m);io.observe(m)}},400);   // keep loading while the bottom is in view
+      });
+    }
+    if(html){g.insertAdjacentHTML("beforeend",html);setTimeout(()=>{const m=$("#more");if(io&&m){io.unobserve(m);io.observe(m)}},400)}
     g.querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
     return;
   }
@@ -396,7 +409,7 @@ function more(n){
     }
     const v=queue.shift();
     html+=cardHTML(v);rendered++;
-    if(cat==="all"&&!query&&rendered%3===0){const lv=takeLive();if(lv)html+=cardHTML(lv)}
+    if(cat==="all"&&!query&&rendered%3===0){const lv=takeLive(true);if(lv)html+=cardHTML(lv)}
     if(cat==="all"&&!query&&rendered%6===0){html+=cardHTML(makeSpark(sparkN++))}
   }
   g.insertAdjacentHTML("beforeend",html);
@@ -614,7 +627,22 @@ async function loadTaste(){
 }
 
 let livePool=LS.get("dr_livepool4",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
-let liveBusy=null, liveDead=false;
+let liveHist=LS.get("dr_livehist",[]);        // every live find you've been shown, for endless rewinds
+let liveBusy=null, searchDead=false, liveDead=false, lastFetch=0, rewindIdx=0;
+/* quality channels browsed via their upload lists (costs ~1/100th of a search) */
+const BRAND_HANDLES=["@nike","@jumpman23","@adidas","@Apple","@PlayStation","@palantirtech","@squarespace","@highsnobiety","@newbalance","@Porsche",
+ "@gucci","@prada","@CHANEL","@Dior","@LouisVuitton","@Burberry","@loewe","@arcteryx","@salomon","@timberland","@moncler","@Rolex","@redbull",
+ "@polestarcars","@rivian","@nothing","@teenageengineering","@andurilindustries","@Xbox","@samsung","@Google","@Spotify","@heineken","@CocaCola",
+ "@BMW","@audi","@MercedesBenz","@bottegaveneta","@jacquemus","@Kith","@stussy","@carharttwip","@patagonia","@Lacoste","@pumafootball","@nikefootball",
+ "@NikeBasketball","@beatsbydre","@Hermes","@Balenciaga","@zara","@uniqlo","@stoneisland","@onrunning","@hokaoneone","@NintendoAmerica","@riotgames"];
+let handleMap=LS.get("dr_handles",{}), chPage=LS.get("dr_chpage",{});
+async function resolveHandle(h){
+  if(h in handleMap)return handleMap[h];
+  try{const d=await (await fetch("https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&forHandle="+encodeURIComponent(h)+"&key="+YT_KEY)).json();
+    const it=d.items&&d.items[0];handleMap[h]=it?{pl:it.contentDetails.relatedPlaylists.uploads,title:it.snippet.title}:null;
+  }catch(e){return null}
+  LS.set("dr_handles",handleMap);return handleMap[h];
+}
 /* quality gate: only real ads / brand films / music videos / shorts */
 const SLOP=/(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|mukbang|meme|fan ?made|fan edit|parody|recreat|i made|i tried|trying|tier list|\bvs\.?\b|try not to|live stream|livestream|gameplay|walkthrough|lets play|let's play|news|stock|earnings|crypto|giveaway|subscribe|what i eat|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|cover by|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|bts|bloopers|ranked|worst|best of|every .* ad|all .* ads|ads? compilation|\d+ (best|funniest))/i;
 const GOOD=/(commercial|\bads?\b|advert|campaign|brand film|short film|\bfilm\b|spot|official video|music video|trailer|teaser|director'?s cut|launch|anthem|presents|\| apple|introducing|official)/i;
@@ -656,45 +684,81 @@ function pickQuery(){
   }
   const q=rnd(LIVE_Q);return {q,label:q,kind:"taste"};
 }
+async function pickChannel(){
+  const rnd=a=>a[Math.floor(Math.random()*a.length)];
+  if(taste&&taste.channels.length&&Math.random()<.5){const c=rnd(taste.channels);return {pl:"UU"+c.id.slice(2),title:c.title,kind:"channel",label:"more from "+c.title}}
+  for(let i=0;i<4;i++){const h=rnd(BRAND_HANDLES);const r=await resolveHandle(h);if(r)return {pl:r.pl,title:r.title,kind:"brand",label:"new from "+r.title}}
+  return null;
+}
 function fetchLive(qo){
   if(liveBusy)return liveBusy;
   if(liveDead||!YT_KEY)return Promise.resolve(0);
-  const quota=liveQuota(); if(quota.n>=80){liveDead=true;return Promise.resolve(0)}
   liveBusy=(async()=>{
     try{
+      const wait=1200-(Date.now()-lastFetch);if(wait>0)await new Promise(r=>setTimeout(r,wait));   // never hammer the API
+      lastFetch=Date.now();
       if(!taste)await loadTaste();
-      qo=qo||pickQuery(); const q=qo.q||"";
-      const order=["relevance","relevance","viewCount","viewCount","date"][Math.floor(Math.random()*5)];
-      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration="+(qo.channelId?"any":"short")+"&safeSearch=moderate&order="+order+"&videoDefinition=high"+(qo.channelId?"&channelId="+qo.channelId:"")+"&q="+encodeURIComponent((q?q+" ":"")+"-shorts -reaction -review")+"&key="+YT_KEY);
-      quota.n++;LS.set("dr_livequota",quota);
-      const j=await r.json();
-      if(j.error){if(r.status===403){liveDead=true;console.warn("live discover:",j.error.message)}return 0}
+      const quota=liveQuota();if(quota.n>=85)searchDead=true;
+      // 70% of the time (or always once searches are used up): browse quality channels' uploads (cheap)
+      let items=[],src=null,q="";
+      if(searchDead||Math.random()<.7){
+        src=await pickChannel();if(!src)return 0;
+        const tok=chPage[src.pl]||"";
+        const r=await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId="+src.pl+(tok?"&pageToken="+tok:"")+"&key="+YT_KEY);
+        const j=await r.json();
+        if(j.error){if(r.status===403&&/quota/i.test(j.error.message||""))liveDead=true;return 0}
+        chPage[src.pl]=j.nextPageToken||"";LS.set("dr_chpage",chPage);   // next time go deeper into this channel
+        items=(j.items||[]).map(it=>({id:{videoId:it.snippet&&it.snippet.resourceId&&it.snippet.resourceId.videoId},snippet:{title:it.snippet.title,channelTitle:it.snippet.videoOwnerChannelTitle||it.snippet.channelTitle,publishedAt:it.snippet.publishedAt}}));
+        qo={q:"",label:src.label,kind:src.kind};
+      }else{
+        qo=qo||pickQuery();q=qo.q||"";
+        if(qo.channelId){qo={q:"",label:qo.label,kind:"channel"};src={pl:"UU"+qo.channelId};}
+        const order=["relevance","relevance","viewCount","viewCount","date"][Math.floor(Math.random()*5)];
+        const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&videoEmbeddable=true&videoDuration=short&safeSearch=moderate&order="+order+"&videoDefinition=high&q="+encodeURIComponent((q?q+" ":"")+"-shorts -reaction -review")+"&key="+YT_KEY);
+        quota.n++;LS.set("dr_livequota",quota);
+        const j=await r.json();
+        if(j.error){if(r.status===403){searchDead=true;quota.n=999;LS.set("dr_livequota",quota)}return 0}
+        items=j.items||[];
+      }
       const curated=new Set(L.map(v=>v.yt).filter(Boolean)), pooled=new Set(livePool.map(v=>v.yt));
-      const items=(j.items||[]).filter(it=>it.id&&it.id.videoId&&!liveSeen.has(it.id.videoId)&&!curated.has(it.id.videoId)&&!pooled.has(it.id.videoId));
+      items=items.filter(it=>it.id&&it.id.videoId&&!liveSeen.has(it.id.videoId)&&!curated.has(it.id.videoId)&&!pooled.has(it.id.videoId));
       if(!items.length)return 0;
-      const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet,player&maxWidth=640&id="+items.map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
+      const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet,player&maxWidth=640&id="+items.slice(0,50).map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
       const det={};(d.items||[]).forEach(x=>det[x.id]=x);
-      const tags=(qo.label||q).toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)).slice(0,4);
+      const tags=(qo.label||q).toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)&&w!=="more"&&w!=="from").slice(0,4);
       const out=[];
       items.forEach(it=>{
-        const x=det[it.id.videoId]; const sec=x?isoSec(x.contentDetails.duration):0;
-        if(!x||!qualityOK(it,x,q,qo.kind))return;
-        const sn=it.snippet||{};
-        out.push({id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle).slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
+        const x=det[it.id.videoId];
+        if(!x||!x.contentDetails||!x.status&&false)return;
+        const kind=qo.kind==="brand"?"channel":qo.kind;
+        if(!qualityOK(it,x,q,kind))return;
+        if(qo.kind==="brand"&&SLOP.test(decodeEnt(it.snippet.title||"")))return;
+        const sn=it.snippet||{},sec=isoSec(x.contentDetails.duration);
+        out.push({id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle||"").slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
           year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q:qo.label||q,kind:qo.kind,views:+(x.statistics&&x.statistics.viewCount)||0});
       });
       for(let i=out.length-1;i>0;i--){const k=Math.floor(Math.random()*(i+1));[out[i],out[k]]=[out[k],out[i]]}
-      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool4",livePool);
+      livePool=livePool.concat(out).slice(-250);LS.set("dr_livepool4",livePool);
       return out.length;
     }catch(e){return 0}finally{liveBusy=null}
   })();
   return liveBusy;
 }
-function takeLive(){
-  const v=livePool.shift();
-  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool4",livePool);
-    const arr=[...liveSeen];LS.set("dr_liveseen",arr.slice(-3000))}
-  if(livePool.length<12)fetchLive();
+const rewound=new Set();
+function takeLive(allowRewind){
+  let v=livePool.shift();
+  if(v){
+    liveSeen.add(v.yt);LS.set("dr_livepool4",livePool);LS.set("dr_liveseen",[...liveSeen].slice(-4000));
+    liveHist.push(v);if(liveHist.length>800)liveHist=liveHist.slice(-800);LS.set("dr_livehist",liveHist);
+  }else if(allowRewind&&liveHist.length){                // nothing new right now → keep going with older finds
+    const cands=liveHist.filter(h=>!rewound.has(h.id));
+    if(!cands.length)rewound.clear();
+    const pool=cands.length?cands:liveHist;
+    v=Object.assign({},pool[Math.floor(Math.random()*pool.length)],{rewind:true});
+    rewound.add(v.id);
+  }
+  if(v)liveShown[v.id]=v;
+  if(livePool.length<15)fetchLive();
   return v;
 }
 

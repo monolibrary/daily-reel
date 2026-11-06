@@ -313,9 +313,10 @@ function matches(v){
   if((prefs.hidden||[]).includes(v.id))return false;
   if(cat==="swipe"){if(!v.swipe)return false}
   else if(v.swipe)return false;
-  if(cat==="classic"){if(!(v.year&&v.year<2010))return false}
+  if(cat==="play"){if(!(v.yt||v.vimeo))return false}
+  else if(cat==="classic"){if(!(v.year&&v.year<2010))return false}
   else if(cat==="new"){if(!(v.year>=2025||v.added))return false}
-  else if(cat!=="all"&&cat!=="spark"&&cat!=="swipe"&&v.cat!==cat)return false;
+  else if(cat!=="all"&&cat!=="spark"&&cat!=="swipe"&&cat!=="play"&&v.cat!==cat)return false;
   if(query){const hay=(v.brand+" "+v.title+" "+(v.tags||[]).join(" ")+" "+(v.note||"")+" "+(v.dir||"")).toLowerCase();if(!query.split(/\s+/).every(w=>hay.includes(w)))return false}
   return true;
 }
@@ -525,7 +526,7 @@ function savePrefs(){LS.set("dr_prefs",prefs);clearTimeout(prefTimer);prefTimer=
 /* ============================================================
    Events
    ============================================================ */
-const CHIPS=[["all","For You"],["new","New & 2025–26"],["ad","Ads"],["film","Brand films"],["short","Cinematic shorts"],["ai","AI-made"],["promo","Promos & trailers"],["music","Music videos"],["classic","Classics"],["spark","✦ Concept sparks"]];
+const CHIPS=[["all","For You"],["play","▶ Plays here"],["new","New & 2025–26"],["ad","Ads"],["film","Brand films"],["short","Cinematic shorts"],["ai","AI-made"],["promo","Promos & trailers"],["music","Music videos"],["classic","Classics"],["spark","✦ Concept sparks"]];
 function chipLabel(c){const f=CHIPS.find(x=>x[0]===c);return f?f[1]:c}
 function renderChips(){
   $("#chips").innerHTML=view==="feed"?CHIPS.map(([k,l])=>`<button class="chip${cat===k?" on":""}" data-cat="${k}">${l}</button>`).join(""):"";

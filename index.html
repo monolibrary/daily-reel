@@ -382,24 +382,14 @@ function more(n){
   if(cat==="live"){
     let got=0;
     for(let i=0;i<n;i++){const v=takeLive(false);if(!v)break;html+=cardHTML(v);got++}
-    if(got<n&&!liveWaiting){
-      liveWaiting=true;$("#more").textContent="finding fresh videos…";
-      let tries=0;
-      const go=()=>loadDiscover().then(k=>k||fetchLive(2)).then(()=>{
-        if(cat!=="live"){liveWaiting=false;liveLevel=0;return}
-        if(livePool.length){liveWaiting=false;liveLevel=Math.max(0,liveLevel-1);const m=$("#more");if(m)m.textContent="loading more…";more(n-got);return}
-        if(liveDead){
-          liveWaiting=false;
-          const lib=allVideos().filter(v=>(v.yt||v.vimeo)&&!seen[v.id]&&!(prefs.hidden||[]).includes(v.id)&&!document.querySelector('#grid [data-id="'+v.id+'"]')).slice(0,n-got);
-          if(lib.length){$("#grid").insertAdjacentHTML("beforeend",lib.map(cardHTML).join(""));lib.forEach(v=>markSeen(v.id));
-            $("#grid").querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});$("#more").textContent="new batch from YouTube within the hour";return}
-          $("#more").textContent="you've seen everything for now, a new batch lands within the hour";return}
-        tries++;liveLevel=Math.min(2,tries>>1);          // nothing yet → widen the net a little each time
-        $("#more").textContent="digging deeper for more like your picks…";
-        setTimeout(go,tries<8?300:2500);
-      });
-      go();
+    if(got<n){                                        // stock used up: fill instantly, never wait
+      const hid=prefs.hidden||[];
+      const lib=allVideos().filter(v=>(v.yt||v.vimeo)&&!seen[v.id]&&!hid.includes(v.id)&&!g.querySelector('[data-id="'+v.id+'"]')).slice(0,n-got);
+      lib.forEach(v=>{html+=cardHTML(v);got++});
+      if(got<n)replayLive(n-got).forEach(v=>{html+=cardHTML(v);got++});
+      loadDiscover();                                  // pick up any newly approved videos for next time
     }
+    {const m=$("#more");if(m)m.textContent="loading more…"}
     if(html){g.insertAdjacentHTML("beforeend",html);setTimeout(()=>{const m=$("#more");if(io&&m){io.unobserve(m);io.observe(m)}},400)}
     g.querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
     return;
@@ -413,7 +403,7 @@ function more(n){
     }
     const v=queue.shift();
     html+=cardHTML(v);rendered++;
-    if(cat==="all"&&!query&&rendered%2===0){const lv=takeLive(false);if(lv)html+=cardHTML(lv)}
+    if(cat==="all"&&!query&&rendered%3===0){const lv=takeLive(false);if(lv)html+=cardHTML(lv)}
     if(cat==="all"&&!query&&rendered%6===0){html+=cardHTML(makeSpark(sparkN++))}
   }
   g.insertAdjacentHTML("beforeend",html);
@@ -427,7 +417,8 @@ function observe(){
   io.observe(m);
 }
 let seenDirty=false;
-const seenIO=("IntersectionObserver" in window)?new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){markSeen(e.target.dataset.id);seenIO.unobserve(e.target)}})},{threshold:.6}):null;
+const seenIO=("IntersectionObserver" in window)?new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.dataset.id||"";markSeen(id);
+  if(id.startsWith("yt-")){const y=id.slice(3);liveSeen.delete(y);liveSeen.add(y);LS.set("dr_liveseen",[...liveSeen].slice(-4000))}seenIO.unobserve(e.target)}})},{threshold:.6}):null;
 function markSeen(id){const s=seen[id];if(!s){seen[id]={r:refreshN,c:1};seenDirty=true}else if(s.r!==refreshN){s.r=refreshN;s.c=(s.c||0)+1;seenDirty=true}}
 setInterval(()=>{if(seenDirty){seenDirty=false;
   LS.set("dr_seen",seen)}},3000);
@@ -830,16 +821,27 @@ async function fetchRound(){
 /* the prebuilt stock: discover.json is rebuilt every 3 hours on GitHub from YouTube's own
    "Up next" recommendations beside your references, their channels' new uploads and credit searches */
 let discoverAt=0;
+let approvedAll=[];
+/* when every approved pick has been watched: replay the ones seen longest ago, rotating, so Refresh is never empty */
+function replayLive(n){
+  const inGrid=new Set([...document.querySelectorAll("#grid .card")].map(e=>e.dataset.id));
+  const order=[...liveSeen];const pos=new Map(order.map((y,i)=>[y,i]));
+  const pick=approvedAll.filter(v=>!inGrid.has(v.id)).sort((a,b)=>(pos.has(a.yt)?pos.get(a.yt):-1)-(pos.has(b.yt)?pos.get(b.yt):-1)).slice(0,n);
+  pick.forEach(v=>{liveSeen.delete(v.yt);liveSeen.add(v.yt)});LS.set("dr_liveseen",[...liveSeen].slice(-4000));
+  return pick;
+}
 async function loadDiscover(){
   try{
     const j=await (await fetch("curated.json?t="+Date.now(),{cache:"no-store"})).json();discoverAt=Date.now();   // only hand-approved picks
     const cur=new Set((j.items||[]).map(x=>x&&x.yt));
     livePool=livePool.filter(v=>cur.has(v.yt));                       // drop picks the latest stock no longer stands behind
     const curated=new Set(L.map(v=>v.yt).filter(Boolean)), swipe=new Set(SWIPE_YT), have=new Set(livePool.map(v=>v.yt)), hidden=new Set(prefs.hidden||[]);
-    const add=(j.items||[]).filter(x=>x&&/^[A-Za-z0-9_-]{11}$/.test(x.yt)&&!liveSeen.has(x.yt)&&!curated.has(x.yt)&&!swipe.has(x.yt)&&!have.has(x.yt)&&!blockedCh.has(x.ch)&&!hidden.has("yt-"+x.yt))
-      .map(x=>({id:"yt-"+x.yt,live:true,yt:x.yt,brand:String(x.ch||"YouTube").slice(0,60),title:String(x.title||"").slice(0,140),
+    const toLive=x=>({id:"yt-"+x.yt,live:true,yt:x.yt,brand:String(x.ch||"YouTube").slice(0,60),title:String(x.title||"").slice(0,140),
         year:x.age<9000?new Date(Date.now()-x.age*864e5).getFullYear():"",cat:"live",len:x.sec?fmtLen(x.sec):"",tags:terms(x.title).slice(0,4),note:"",dir:"",
-        q:/^(new from|more by) /.test(x.via||"")?x.via:"up next beside “"+x.via+"”",kind:"rec",views:x.views||0,score:+((x.s||0)+Math.random()*1.2).toFixed(3),at:Date.now()}));
+        q:/^(new from|more by) /.test(x.via||"")?x.via:"up next beside “"+x.via+"”",kind:"rec",views:x.views||0,score:+((x.s||0)+Math.random()*1.2).toFixed(3),at:Date.now()});
+    const ok=x=>x&&/^[A-Za-z0-9_-]{11}$/.test(x.yt)&&!curated.has(x.yt)&&!swipe.has(x.yt)&&!blockedCh.has(x.ch)&&!hidden.has("yt-"+x.yt);
+    approvedAll=(j.items||[]).filter(ok).map(toLive);
+    const add=(j.items||[]).filter(x=>ok(x)&&!liveSeen.has(x.yt)&&!have.has(x.yt)).map(toLive);
     if(add.length){livePool=livePool.concat(add).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,6000);LS.set("dr_livepool5",livePool)}
     return add.length;
   }catch(e){return 0}
@@ -869,7 +871,7 @@ function takeLive(allowRewind){
   let v=livePool.length?livePool.splice(i,1)[0]:null;
   if(v){recentCh.push(v.brand);recentCh=recentCh.slice(-3)}
   if(v){
-    liveSeen.add(v.yt);LS.set("dr_livepool5",livePool);LS.set("dr_liveseen",[...liveSeen].slice(-4000));
+    LS.set("dr_livepool5",livePool);
     liveHist.push(v);if(liveHist.length>800)liveHist=liveHist.slice(-800);LS.set("dr_livehist",liveHist);
   }else if(allowRewind&&liveHist.length){                // nothing new right now → keep going with older finds
     const cands=liveHist.filter(h=>!rewound.has(h.id));

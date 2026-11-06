@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daily Reel — Inspiration Feed</title>
+<title>NOUR MONO library</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -180,7 +180,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(11,11,12,.86);backdrop-f
 <body>
 <header>
   <div class="wrap bar">
-    <div class="logo"><span class="rec"></span><b>DAILY REEL</b><i>inspo feed</i></div>
+    <div class="logo"><span class="rec"></span><b>NOUR MONO</b><i>library</i></div>
     <div class="tabs">
       <button class="tab on" data-view="feed">For You</button>
       <button class="tab" data-view="saved">★ Saved<span class="n" id="savedN">0</span></button>
@@ -581,7 +581,7 @@ document.addEventListener("click",e=>{
   const card=t.closest(".card,.mini");if(card&&!t.closest(".modal")){openModal(card.dataset.id)}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modalId)closeModal()});
-document.addEventListener("change",e=>{if(e.target.id==="impFile"&&e.target.files[0]){e.target.files[0].text().then(t=>{try{const j=JSON.parse(t);Object.assign(saves,j.saves||{});if(j.prefs)prefs=j.prefs;persistLocal();LS.set("dr_prefs",prefs);toast("Stars restored");render()}catch(err){toast("That file isn't a Daily Reel backup")}})}});
+document.addEventListener("change",e=>{if(e.target.id==="impFile"&&e.target.files[0]){e.target.files[0].text().then(t=>{try{const j=JSON.parse(t);Object.assign(saves,j.saves||{});if(j.prefs)prefs=j.prefs;persistLocal();LS.set("dr_prefs",prefs);toast("Stars restored");render()}catch(err){toast("That file isn't a NOUR MONO library backup")}})}});
 document.addEventListener("input",e=>{if(e.target.id==="note"){clearTimeout(noteTimer);noteTimer=setTimeout(flushNote,900)}});
 let qTimer=null;
 $("#q").addEventListener("input",e=>{clearTimeout(qTimer);qTimer=setTimeout(()=>{query=e.target.value.trim().toLowerCase();render()},220)});

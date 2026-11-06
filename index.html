@@ -384,17 +384,15 @@ function more(n){
     for(let i=0;i<n;i++){const v=takeLive(false);if(!v)break;html+=cardHTML(v);got++}
     if(got<n&&!liveWaiting){
       liveWaiting=true;$("#more").textContent="finding fresh videos…";
-      fetchLive().then(k=>{
-        liveWaiting=false;if(cat!=="live")return;
-        if(k||livePool.length){more(n-got);return}
-        // nothing new available right now → keep the feed going with earlier finds + hand-picked films
-        if(!queue.length){cat="all";queue=rankPass(Math.floor(Math.random()*1e6));cat="live"}
-        let h="";for(let i=0;i<n-got;i++){const v=(i%3===2?queue.shift():takeLive(true))||queue.shift();if(v)h+=cardHTML(v)}
-        $("#grid").insertAdjacentHTML("beforeend",h);
-        $("#more").textContent=liveDead?"new finds pause until YouTube's daily limit resets, still showing earlier finds":"loading more…";
-        $("#grid").querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
-        setTimeout(()=>{const m=$("#more");if(io&&m){io.unobserve(m);io.observe(m)}},400);   // keep loading while the bottom is in view
+      let tries=0;
+      const go=()=>fetchLive(2).then(()=>{
+        if(cat!=="live"){liveWaiting=false;return}
+        if(livePool.length){liveWaiting=false;more(n-got);return}
+        if(!liveDead&&++tries<4){go();return}           // keep looking: only ever show videos you haven't seen
+        liveWaiting=false;
+        $("#more").textContent=liveDead?"YouTube's daily limit is used up, new finds resume tomorrow":"no new matches right now, hit ↻ again in a minute";
       });
+      go();
     }
     if(html){g.insertAdjacentHTML("beforeend",html);setTimeout(()=>{const m=$("#more");if(io&&m){io.unobserve(m);io.observe(m)}},400)}
     g.querySelectorAll(".card:not([data-o])").forEach(el=>{el.dataset.o=1;if(seenIO)seenIO.observe(el)});
@@ -409,7 +407,7 @@ function more(n){
     }
     const v=queue.shift();
     html+=cardHTML(v);rendered++;
-    if(cat==="all"&&!query&&rendered%2===0){const lv=takeLive(true);if(lv)html+=cardHTML(lv)}
+    if(cat==="all"&&!query&&rendered%2===0){const lv=takeLive(false);if(lv)html+=cardHTML(lv)}
     if(cat==="all"&&!query&&rendered%6===0){html+=cardHTML(makeSpark(sparkN++))}
   }
   g.insertAdjacentHTML("beforeend",html);
@@ -431,7 +429,7 @@ async function doRefresh(){
   LS.set("dr_seen",seen);
   const b0=$("#refresh");b0.classList.remove("spin");void b0.offsetWidth;b0.classList.add("spin");
   await loadLibrary();
-  await Promise.race([fetchLive(3),new Promise(r=>setTimeout(r,4000))]);   // every refresh pulls a new batch
+  await Promise.race([fetchLive(3),new Promise(r=>setTimeout(r,livePool.length>=12?2500:7000))]);   // every refresh pulls a new batch
   const fresh=allVideos().filter(v=>v.added&&!lastVisitExtra.has(v.id)).length;
   refreshN++;LS.set("dr_refresh",refreshN);
   view="feed";if(cat==="spark")cat="all";
@@ -439,6 +437,7 @@ async function doRefresh(){
   window.scrollTo({top:0,behavior:"smooth"});
   render();
   setTimeout(()=>{lastVisitExtra=new Set(L.filter(v=>v.added).map(v=>v.id));LS.set("dr_known_extra",[...lastVisitExtra])},1500);
+  setTimeout(()=>{if(livePool.length<30)fetchLive(2)},800);   // keep a stock of unseen finds ready
   const unseen=allVideos().filter(v=>!seen[v.id]).length;
   toast(fresh?`🔥 ${fresh} new drop${fresh>1?"s":""} at the top`:unseen?`↻ Fresh mix · ${unseen} you haven't seen yet`:"↻ Fresh mix of past favourites");
   const b=$("#refresh");b.classList.remove("spin");void b.offsetWidth;b.classList.add("spin");
@@ -814,7 +813,8 @@ async function fetchRound(){
       year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(isoSec(x.contentDetails.duration)),
       tags:terms(sn.title).slice(0,4),note:"",dir:"",q:src.label,kind:src.kind,views,score:+(s+Math.random()*.6).toFixed(3),at:now};
   });
-  livePool=livePool.concat(out).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,300);LS.set("dr_livepool5",livePool);
+  const have=new Set(livePool.map(v=>v.yt));
+  livePool=livePool.concat(out.filter(v=>!have.has(v.yt)&&have.add(v.yt))).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,300);LS.set("dr_livepool5",livePool);
   return out.length;
 }
 /* rounds = how many sources to pull from at once (Refresh pulls several) */

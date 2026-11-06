@@ -832,7 +832,7 @@ async function fetchRound(){
 let discoverAt=0;
 async function loadDiscover(){
   try{
-    const j=await (await fetch("discover.json?t="+Date.now(),{cache:"no-store"})).json();discoverAt=Date.now();
+    const j=await (await fetch("curated.json?t="+Date.now(),{cache:"no-store"})).json();discoverAt=Date.now();   // only hand-approved picks
     const cur=new Set((j.items||[]).map(x=>x&&x.yt));
     livePool=livePool.filter(v=>cur.has(v.yt));                       // drop picks the latest stock no longer stands behind
     const curated=new Set(L.map(v=>v.yt).filter(Boolean)), swipe=new Set(SWIPE_YT), have=new Set(livePool.map(v=>v.yt)), hidden=new Set(prefs.hidden||[]);
@@ -846,6 +846,7 @@ async function loadDiscover(){
 }
 /* rounds = how many sources to pull from at once (Refresh pulls several) */
 function fetchLive(rounds){
+  return Promise.resolve(0);   // Live shows hand-approved picks only (curated.json); no unreviewed API finds
   if(liveBusy)return liveBusy;
   if(liveDead||!YT_KEY)return Promise.resolve(0);
   liveBusy=(async()=>{

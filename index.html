@@ -386,11 +386,12 @@ function more(n){
       liveWaiting=true;$("#more").textContent="finding fresh videos…";
       let tries=0;
       const go=()=>fetchLive(2).then(()=>{
-        if(cat!=="live"){liveWaiting=false;return}
-        if(livePool.length){liveWaiting=false;more(n-got);return}
-        if(!liveDead&&++tries<4){go();return}           // keep looking: only ever show videos you haven't seen
-        liveWaiting=false;
-        $("#more").textContent=liveDead?"YouTube's daily limit is used up, new finds resume tomorrow":"no new matches right now, hit ↻ again in a minute";
+        if(cat!=="live"){liveWaiting=false;liveLevel=0;return}
+        if(livePool.length){liveWaiting=false;liveLevel=Math.max(0,liveLevel-1);const m=$("#more");if(m)m.textContent="loading more…";more(n-got);return}
+        if(liveDead){liveWaiting=false;$("#more").textContent="YouTube's daily limit is used up, new finds resume tomorrow";return}
+        tries++;liveLevel=Math.min(2,tries>>1);          // nothing yet → widen the net a little each time
+        $("#more").textContent="digging deeper for more like your picks…";
+        setTimeout(go,tries<8?300:2500);
       });
       go();
     }
@@ -730,10 +731,11 @@ const SLOP=/(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|
 const GOOD=/(commercial|\bads?\b|advert|campaign|brand film|short film|\bfilm\b|spot|official video|music video|trailer|teaser|director'?s cut|launch|anthem|presents|\| apple|introducing|official|ss\d\d|fw\d\d|aw\d\d|collection|lookbook)/i;
 const BADCAT=new Set(["17","19","20","25","26","27","28","29"]); // sports clips, travel vlogs, gaming, news, howto, education, science, activism
 let blockedCh=new Set(LS.get("dr_blockch",[]));
+let liveLevel=0;
 function qualityOK(it,x,trusted,sim){
   const sn=it.snippet||{}, t=decodeEnt(sn.title||""), ch=decodeEnt(sn.channelTitle||""), desc=(x.snippet&&x.snippet.description||"").slice(0,400);
   const sec=isoSec(x.contentDetails.duration), views=+(x.statistics&&x.statistics.viewCount)||0;
-  if(sec<30||sec>(trusted?420:300))return false;                     // 30s – 5min (7 for trusted channels)
+  if(sec<30||sec>(trusted||liveLevel>=2?600:liveLevel?420:300))return false;                     // 30s – 5min (7 for trusted channels)
   if(x.contentDetails.definition!=="hd")return false;                // HD only
   const pw=+(x.player&&x.player.embedWidth)||0, ph=+(x.player&&x.player.embedHeight)||0;
   if(!pw||!ph||pw/ph<1.3)return false;                               // widescreen only: no vertical, square or unknown shape
@@ -741,8 +743,8 @@ function qualityOK(it,x,trusted,sim){
   if(SLOP.test(t)||/#shorts/i.test(desc))return false;
   if(x.snippet&&BADCAT.has(x.snippet.categoryId))return false;
   if(blockedCh.has(ch))return false;
-  if(views<(trusted?300:3000))return false;                          // some proof people cared
-  if(!trusted&&!(GOOD.test(t)||sim>=1.5))return false;                // must read like an ad / film, or be very close to your taste
+  if(views<(liveLevel>=2?100:trusted||liveLevel?300:3000))return false;                          // some proof people cared
+  if(!trusted&&liveLevel<2&&!(GOOD.test(t)||sim>=(liveLevel?.8:1.5)))return false;                // must read like an ad / film, or be very close to your taste
   return true;
 }
 function wpick(list){const tot=list.reduce((a,x)=>a+x[1],0);let r=Math.random()*tot;for(const x of list){r-=x[1];if(r<=0)return x[0]}return list[0][0]}
@@ -786,9 +788,9 @@ async function fetchRound(){
     items=(j.items||[]).map(it=>({id:{videoId:it.snippet&&it.snippet.resourceId&&it.snippet.resourceId.videoId},snippet:{title:it.snippet.title,channelTitle:it.snippet.videoOwnerChannelTitle||it.snippet.channelTitle,publishedAt:it.snippet.publishedAt}}));
   }else{
     const quota=liveQuota();quota.n++;LS.set("dr_livequota",quota);
-    const after=src.order==="date"?"&publishedAfter="+new Date(Date.now()-60*864e5).toISOString():"";
+    const after=src.order==="date"?"&publishedAfter="+new Date(Date.now()-60*864e5).toISOString().replace(/\.\d+Z$/,"Z"):"";
     try{items=(await ytGet("search?part=snippet&type=video&maxResults=50&videoEmbeddable=true&safeSearch=moderate&order="+src.order+after+"&videoDefinition=high&q="+encodeURIComponent(src.q+" -shorts -reaction -review"))).items||[]}
-    catch(e){searchDead=true;return 0}
+    catch(e){if(liveDead)searchDead=true;return 0}
   }
   const curated=new Set(L.map(v=>v.yt).filter(Boolean)), pooled=new Set(livePool.map(v=>v.yt)), swipe=new Set(SWIPE_YT);
   items=items.filter(it=>it.id&&it.id.videoId&&!liveSeen.has(it.id.videoId)&&!curated.has(it.id.videoId)&&!pooled.has(it.id.videoId)&&!swipe.has(it.id.videoId));
@@ -806,7 +808,7 @@ async function fetchRound(){
   });
   scored.sort((a,b)=>b.s-a.s);
   // keep the batch's best: channel uploads are already on-taste; everything else must look like your references
-  const keep=scored.slice(0,Math.ceil(scored.length*(src.kind==="channel"?.7:.5))).filter(c=>src.kind==="channel"||c.sim>=.8);
+  const keep=scored.slice(0,Math.ceil(scored.length*(src.kind==="channel"||liveLevel>=2?.8:liveLevel?.65:.5))).filter(c=>src.kind==="channel"||c.sim>=[.8,.35,0][liveLevel]);
   const out=keep.map(({it,x,s,views})=>{
     const sn=it.snippet||{};
     return {id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle||"").slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
@@ -826,7 +828,7 @@ function fetchLive(rounds){
       const wait=1200-(Date.now()-lastFetch);if(wait>0)await new Promise(r=>setTimeout(r,wait));   // never hammer the API
       lastFetch=Date.now();
       await loadTaste();
-      if(!taste)return 0;
+      if(!taste)taste={t:0,sig:0,terms:{},queries:LIVE_Q.map(q=>({q,label:q})),credits:[],channels:{},explored:[]};
       if(Math.random()<.35)exploreRelated();
       const res=await Promise.all(Array.from({length:Math.max(1,rounds|0)},()=>fetchRound().catch(()=>0)));
       return res.reduce((a,b)=>a+b,0);

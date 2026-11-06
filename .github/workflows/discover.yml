@@ -1,0 +1,31 @@
+name: discover
+on:
+  schedule:
+    - cron: "17 */3 * * *"     # every 3 hours
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/discover.mjs", ".github/workflows/discover.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: discover
+  cancel-in-progress: false
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/discover.mjs
+      - name: commit discover.json
+        run: |
+          git config user.name "discover-bot"
+          git config user.email "discover-bot@users.noreply.github.com"
+          git add discover.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Refresh discover.json"
+          git pull --rebase origin main && git push

@@ -145,20 +145,15 @@ console.log("3) uploads from channels that make/curate this kind of work");
 // reference channels that publish their own films (not reupload / aggregator channels)
 const AUTHORS = /^(aimé leon dore|palantir|justice|dollar shave club|coinbase|criterion|bfi|ea sports fc|away|gibson hazard|fuckinggoodmovies|the world's best ads)$/i;
 // hand-picked: brands, directors, labels and curators in the spirit of the references
-const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland", "@newbalance",
-  "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@beatsbydre", "@highsnobiety", "@Jordan",
-  "@A24", "@NEON", "@mubi", "@FocusFeatures", "@shortoftheweek", "@NOWNESS", "@CharliXCX", "@tylerthecreator", "@FKAtwigs", "@kendricklamar",
-  "@carharttwip", "@kith",
-  // fashion & luxury
-  "@gucci", "@prada", "@Burberry", "@Balenciaga", "@Dior", "@LouisVuitton", "@CHANEL", "@Moncler", "@RIMOWA", "@Cartier", "@Rolex", "@OMEGA",
-  // cars
-  "@MercedesBenz", "@BMW", "@audi", "@Ferrari", "@Lamborghini", "@Polestar",
-  // brands with strong film work
-  "@Guinness", "@pepsi", "@CocaCola", "@Spotify", "@Airbnb", "@samsung", "@Google", "@Xbox", "@Ubisoft",
-  // film & series studios (trailers, title sequences)
-  "@WarnerBrosPictures", "@UniversalPictures", "@SonyPictures", "@ParamountPictures", "@Lionsgate", "@SearchlightPictures", "@Netflix", "@AppleTV", "@PrimeVideo", "@hbo",
-  // music artists with directed videos
-  "@DaftPunk", "@TheWeeknd", "@travisscott", "@rosalia", "@gorillaz", "@asaprocky", "@BadBunny", "@stromae", "@LittleSimz", "@skepta", "@billieeilish", "@DuaLipa"];
+const QUALITY = [
+  // brands with real film / campaign work
+  "@nike", "@nikefootball", "@Jordan", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland",
+  "@bottegaveneta", "@loewe", "@jacquemus", "@carharttwip", "@kith", "@Moncler", "@gucci", "@prada", "@Burberry",
+  // film: trailers, teasers, title sequences
+  "@A24", "@NEON", "@mubi", "@Netflix", "@AppleTV", "@hbo", "@SonyPictures", "@Lionsgate", "@SearchlightPictures", "@ParamountPictures", "@UniversalPictures",
+  // directed music videos in the spirit of Justice / Charli XCX
+  "@CharliXCX", "@kendricklamar", "@tylerthecreator", "@FKAtwigs", "@DaftPunk", "@gorillaz", "@travisscott", "@rosalia", "@stromae",
+  "@shortoftheweek"];
 const sources = [...[...seedCh].filter(([, n]) => AUTHORS.test(n)).map(([id, n]) => ({ url: "https://www.youtube.com/channel/" + id + "/videos?hl=en&gl=US", name: n, root: "ch:" + id })),
   ...QUALITY.map(h => ({ url: "https://www.youtube.com/" + h + "/videos?hl=en&gl=US", name: "", root: "ch:" + h }))];
 await pool(sources, 3, async src => {
@@ -206,7 +201,12 @@ for (const { c, via, hop, root, roots } of recs.values()) {
   const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short|presents|introducing|collection|ss\d\d|fw\d\d|aw\d\d)/i;
   const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:") && !String(x).startsWith("ch:")).length, n = Math.min(k, 4);
   const byCredit = [...roots].some(x => String(x).startsWith("q:") && (c.title + " " + c.ch).toLowerCase().includes(String(x).slice(10).toLowerCase().replace(/^the /, "")));
-  if (!FILMY.test(c.title) && !(fromTrusted && c.sec >= 45)) continue;   // a film, ad, trailer, title sequence, scene or music video
+  if (!FILMY.test(c.title)) continue;
+  const STUDIO = /(pictures|a24|neon|mubi|netflix|apple tv|hbo|lionsgate|searchlight|paramount|universal|sony)/i;
+  const MUSIC = /(charli|kendrick|tyler|fka|daft punk|gorillaz|travis|ros[aá]l[ií]a|stromae|justice)/i;
+  if (STUDIO.test(c.ch) && !/(official trailer|teaser|title sequence|opening (titles|credits|sequence)|main titles)/i.test(c.title)) continue;
+  if (MUSIC.test(c.ch) && !/official (music )?video|music video|short film/i.test(c.title)) continue;
+  if (/(how-?to|instructions|guests|a day with|race|championship|nationals|highlights|\blive\b|recap|interview|reaction|portrait series|unveil|first laps|behind the design|making of|in conversation)/i.test(c.title)) continue;   // a film, ad, trailer, title sequence, scene or music video
   if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|compilation|rotten tomatoes|one media|kinocheck|fandango|trailer ?(feed|hub|zone)|movie ?trailers? source|filmselect|joblo)/i.test(c.ch)) continue;
   // tied to your taste: a trusted channel, next to 2+ of your references, or by someone credited on them
   const ok = fromTrusted || n >= 2 || byCredit;

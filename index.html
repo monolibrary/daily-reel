@@ -561,7 +561,8 @@ document.addEventListener("click",e=>{
   const chip=t.closest("[data-cat]");if(chip){cat=chip.dataset.cat;window.scrollTo(0,0);render();return}
   const sc=t.closest("[data-scat]");if(sc){savedCat=sc.dataset.scat;renderSaved();return}
   const mo=t.closest("[data-more]");if(mo){const v=findV(mo.dataset.more);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.min((prefs.boost[tg]||0)+1,6));prefs.boost["cat:"+v.cat]=Math.min((prefs.boost["cat:"+v.cat]||0)+1,6);savePrefs();toast("Got it. More like this coming up.");closeModal();if(view==="feed")renderFeed();return}
-  const hd=t.closest("[data-hide]");if(hd){prefs.hidden.push(hd.dataset.hide);const v=findV(hd.dataset.hide);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
+  const hd=t.closest("[data-hide]");if(hd){prefs.hidden.push(hd.dataset.hide);const v=findV(hd.dataset.hide);
+    if(v&&v.live&&v.brand){blockedCh.add(v.brand);LS.set("dr_blockch",[...blockedCh]);livePool=livePool.filter(x=>x.brand!==v.brand);LS.set("dr_livepool2",livePool)}(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
   const op=t.closest("[data-open]");if(op){flushNote();openModal(op.dataset.open);return}
   if(t.closest("a"))return;
   const card=t.closest(".card,.mini");if(card&&!t.closest(".modal")){openModal(card.dataset.id)}
@@ -580,20 +581,41 @@ function setSync(txt,ok){const s=$("#sync");s.textContent=txt;s.classList.toggle
    ============================================================ */
 const YT_KEY="AIzaSyD3dcKKVF98Py7T6R0F7JyJY7UzCHx69T0";
 const LIVE_Q=["cinematic brand film","luxury fashion film","Nike commercial","Apple ad","adidas campaign film","perfume commercial cinematic",
- "car commercial cinematic","AI generated commercial","Sora AI short film","Veo 3 commercial","Runway AI short film","Kling AI cinematic short",
- "Seedance AI film","music video one take","streetwear campaign film","fashion film","spec commercial cinematic","product commercial cinematic",
+ "car commercial cinematic","AI generated commercial","Sora short film official","Veo 3 commercial","Runway AI short film","Kling AI commercial",
+ "AI generated ad campaign","music video one take","streetwear campaign film","fashion film","spec commercial cinematic","product commercial cinematic",
  "award winning short film","Cannes Lions film","Super Bowl commercial 2026","sneaker commercial","watch commercial cinematic","tech launch film",
  "cinematic game trailer","energy drink commercial","coffee commercial cinematic","Mercedes-Benz commercial","Porsche film","Jordan brand film",
  "Gucci campaign film","Prada film","Chanel film","Dior campaign film","Louis Vuitton film","Rolex film","Red Bull film","Puma commercial",
  "New Balance campaign","Aimé Leon Dore","Highsnobiety film","Palantir film","Anduril film","PlayStation commercial","Xbox commercial",
- "Samsung Galaxy ad","Google Pixel ad","Spotify ad","beauty commercial cinematic","skincare commercial","travel film cinematic",
+ "Samsung Galaxy ad","Google Pixel ad","Spotify ad","beauty commercial cinematic","skincare commercial","tourism board film",
  "hotel brand film","football commercial","basketball commercial","F1 commercial","stop motion commercial","animated commercial",
  "one take commercial","split screen commercial","film grain fashion campaign","brand anthem film","manifesto film brand","directors cut commercial",
- "Vimeo staff pick short film","1 minute short film","AI music video","Midjourney video short film","sports brand film","Heineken commercial",
+ "Vimeo staff pick short film","short film staff pick","AI generated music video official","AI brand film","sports brand film","Heineken commercial",
  "Coca-Cola commercial","IKEA ad","Volvo commercial","BMW film","Audi commercial","Hermès film","Balenciaga campaign","Bottega Veneta film",
  "Arc'teryx film","Patagonia film","Lego commercial","Netflix promo","HBO promo","A24 trailer","Apple Watch ad","iPhone ad","Mac ad"];
-let livePool=LS.get("dr_livepool",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
+let livePool=LS.get("dr_livepool2",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
 let liveBusy=null, liveDead=false;
+/* quality gate: only real ads / brand films / music videos / shorts */
+const SLOP=/(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|mukbang|meme|fan ?made|fan edit|parody|recreat|i made|i tried|trying|tier list|\bvs\.?\b|try not to|live stream|livestream|gameplay|walkthrough|lets play|let's play|news|stock|earnings|crypto|giveaway|subscribe|what i eat|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|cover by|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|bts|bloopers|ranked|worst|best of|every .* ad|all .* ads|ads? compilation|\d+ (best|funniest))/i;
+const GOOD=/(commercial|\bads?\b|advert|campaign|brand film|short film|\bfilm\b|spot|official video|music video|trailer|teaser|director'?s cut|launch|anthem|presents|\| apple|introducing|official)/i;
+const BADCAT=new Set(["17","19","20","25","26","27","28","29"]); // sports clips, travel vlogs, gaming, news, howto, education, science, activism
+let blockedCh=new Set(LS.get("dr_blockch",[]));
+function qualityOK(it,x,q){
+  const sn=it.snippet||{}, t=decodeEnt(sn.title||""), ch=decodeEnt(sn.channelTitle||""), desc=(x.snippet&&x.snippet.description||"").slice(0,400);
+  const sec=isoSec(x.contentDetails.duration), views=+(x.statistics&&x.statistics.viewCount)||0;
+  if(sec<30||sec>240)return false;                                   // 30s – 4min
+  if(x.contentDetails.definition!=="hd")return false;                // HD only
+  const pw=+(x.player&&x.player.embedWidth)||0, ph=+(x.player&&x.player.embedHeight)||0;
+  if(pw&&ph&&ph>=pw*.95)return false;                                // no vertical / square clips
+  if(SLOP.test(t)||/#shorts/i.test(desc))return false;
+  if(x.snippet&&BADCAT.has(x.snippet.categoryId))return false;
+  if(blockedCh.has(ch))return false;
+  if(views<5000)return false;                                        // some proof people cared
+  const brandWord=(q.split(" ")[0]||"").toLowerCase();
+  const fromBrand=brandWord.length>2&&ch.toLowerCase().includes(brandWord);
+  if(!(GOOD.test(t)||fromBrand))return false;                       // must read like an ad / film
+  return true;
+}
 function liveQuota(){const q=LS.get("dr_livequota",{d:"",n:0});if(q.d!==today){q.d=today;q.n=0}return q}
 const decodeEnt=(()=>{const t=document.createElement("textarea");return s=>{t.innerHTML=s||"";return t.value}})();
 function isoSec(d){const m=(d||"").match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);return m?(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0):0}
@@ -617,27 +639,27 @@ function fetchLive(q){
   liveBusy=(async()=>{
     try{
       q=q||pickQuery();
-      const order=["relevance","relevance","date","viewCount"][Math.floor(Math.random()*4)];
-      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration=short&safeSearch=moderate&order="+order+"&q="+encodeURIComponent(q)+"&key="+YT_KEY);
+      const order=["relevance","relevance","viewCount","viewCount","date"][Math.floor(Math.random()*5)];
+      const r=await fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&videoEmbeddable=true&videoDuration=short&safeSearch=moderate&order="+order+"&videoDefinition=high&q="+encodeURIComponent(q+" -shorts -reaction -review")+"&key="+YT_KEY);
       quota.n++;LS.set("dr_livequota",quota);
       const j=await r.json();
       if(j.error){if(r.status===403){liveDead=true;console.warn("live discover:",j.error.message)}return 0}
       const curated=new Set(L.map(v=>v.yt).filter(Boolean)), pooled=new Set(livePool.map(v=>v.yt));
       const items=(j.items||[]).filter(it=>it.id&&it.id.videoId&&!liveSeen.has(it.id.videoId)&&!curated.has(it.id.videoId)&&!pooled.has(it.id.videoId));
       if(!items.length)return 0;
-      const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id="+items.map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
+      const d=await (await fetch("https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet,player&maxWidth=640&id="+items.map(i=>i.id.videoId).join(",")+"&key="+YT_KEY)).json();
       const det={};(d.items||[]).forEach(x=>det[x.id]=x);
       const tags=q.toLowerCase().replace(/[^a-z0-9 ]/g,"").split(/\s+/).filter(w=>w.length>3&&!/^\d+$/.test(w)).slice(0,4);
       const out=[];
       items.forEach(it=>{
         const x=det[it.id.videoId]; const sec=x?isoSec(x.contentDetails.duration):0;
-        if(!x||sec<20||sec>240)return;
+        if(!x||!qualityOK(it,x,q))return;
         const sn=it.snippet||{};
         out.push({id:"yt-"+it.id.videoId,live:true,yt:it.id.videoId,brand:decodeEnt(sn.channelTitle).slice(0,60)||"YouTube",title:decodeEnt(sn.title).slice(0,140),
           year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q,views:+(x.statistics&&x.statistics.viewCount)||0});
       });
       for(let i=out.length-1;i>0;i--){const k=Math.floor(Math.random()*(i+1));[out[i],out[k]]=[out[k],out[i]]}
-      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool",livePool);
+      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool2",livePool);
       return out.length;
     }catch(e){return 0}finally{liveBusy=null}
   })();
@@ -645,7 +667,7 @@ function fetchLive(q){
 }
 function takeLive(){
   const v=livePool.shift();
-  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool",livePool);
+  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool2",livePool);
     const arr=[...liveSeen];LS.set("dr_liveseen",arr.slice(-3000))}
   if(livePool.length<12)fetchLive();
   return v;

@@ -1867,25 +1867,6 @@
    "vimeo": ""
   },
   {
-   "id": "burberry-quilt-colman",
-   "brand": "Burberry",
-   "title": "The Quilt with Olivia Colman",
-   "year": 2024,
-   "cat": "ad",
-   "len": "1:50",
-   "tags": [
-    "fashion",
-    "british",
-    "humor",
-    "celebrity"
-   ],
-   "note": "A product film that plays like a dry British comedy sketch. One great performer and one object is enough for a whole spot.",
-   "dir": "",
-   "yt": "52A29r_2XRs",
-   "added": "2026-11-06",
-   "vimeo": ""
-  },
-  {
    "id": "prada-fw25-motion",
    "brand": "Prada",
    "title": "FW25 — A Journey in Motion",
@@ -1924,44 +1905,6 @@
    "vimeo": ""
   },
   {
-   "id": "mercedes-moss-300slr",
-   "brand": "Mercedes-Benz",
-   "title": "A Tribute to Sir Stirling Moss and the 300 SLR",
-   "year": 2022,
-   "cat": "promo",
-   "len": "3:39",
-   "tags": [
-    "automotive",
-    "heritage",
-    "racing",
-    "tribute"
-   ],
-   "note": "Heritage storytelling around one legendary car and driver. Anchor a brand film in a single true story instead of a list of features.",
-   "dir": "",
-   "yt": "hk8GVanoOzI",
-   "added": "2026-11-06",
-   "vimeo": ""
-  },
-  {
-   "id": "lambo-the-touch-ch1",
-   "brand": "Lamborghini",
-   "title": "The Touch: The Power of Emotions — Chapter 1",
-   "year": 2024,
-   "cat": "ad",
-   "len": "1:02",
-   "tags": [
-    "automotive",
-    "sensory",
-    "macro",
-    "emotion"
-   ],
-   "note": "A car sold through touch and sensation: close-ups, textures, breath. Make the audience feel the product before they see it whole.",
-   "dir": "",
-   "yt": "ndbsc2df7Vg",
-   "added": "2026-11-06",
-   "vimeo": ""
-  },
-  {
    "id": "searchlight-behemoth",
    "brand": "Searchlight Pictures",
    "title": "BEHEMOTH! — Official Teaser",
@@ -1977,6 +1920,63 @@
    "note": "A teaser that withholds more than it shows. Sell the mood and one strange image, not the plot.",
    "dir": "",
    "yt": "TrMGdrCJ5Ck",
+   "added": "2026-11-06",
+   "vimeo": ""
+  },
+  {
+   "id": "jacquemus-la-bomba",
+   "brand": "JACQUEMUS",
+   "title": "SS18 \"La Bomba\" — by Gordon von Steiner",
+   "year": 2018,
+   "cat": "promo",
+   "len": "1:49",
+   "tags": [
+    "fashion",
+    "sun-bleached",
+    "mediterranean",
+    "campaign"
+   ],
+   "note": "A fashion film that sells a feeling: sun, heat and the south of France, with the clothes almost incidental. Build the world first and the product lives inside it.",
+   "dir": "Gordon von Steiner",
+   "yt": "mL7Gx7tbVR4",
+   "added": "2026-11-06",
+   "vimeo": ""
+  },
+  {
+   "id": "justice-generator",
+   "brand": "Justice",
+   "title": "Generator",
+   "year": 2024,
+   "cat": "music",
+   "len": "3:31",
+   "tags": [
+    "music-video",
+    "electronic",
+    "stylized",
+    "french-touch"
+   ],
+   "note": "Justice's visual world in one video: bold, graphic, built to the beat. Cut to the rhythm of the track and let the music decide the edit.",
+   "dir": "",
+   "yt": "MZTg2WMb8Ps",
+   "added": "2026-11-06",
+   "vimeo": ""
+  },
+  {
+   "id": "kill-bill-whole-bloody-affair",
+   "brand": "Lionsgate",
+   "title": "Kill Bill: The Whole Bloody Affair — Official Trailer",
+   "year": 2026,
+   "cat": "film",
+   "len": "1:31",
+   "tags": [
+    "trailer",
+    "tarantino",
+    "action",
+    "re-release"
+   ],
+   "note": "A trailer for a film everyone already knows, sold on pure style: iconic frames, music and rhythm. Study how it makes the familiar feel like an event.",
+   "dir": "Quentin Tarantino",
+   "yt": "qbUz68h9BFo",
    "added": "2026-11-06",
    "vimeo": ""
   }

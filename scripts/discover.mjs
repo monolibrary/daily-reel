@@ -77,7 +77,7 @@ function cards(data) {
 const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two launch scene scenes clip clips movie movies movieclips 1080p 720p 4k remastered intro opening title titles sequence credits official audio extended exclusive coming soon best ever great about welcome has have had many much don't doesn't didn't can't won't content his her him she they them their there then than these those into over under after before again very really most some any each every other only own same such too also back still even well way make made makes take takes know new now day days year years time times world first last long little big old right left good bad end life love man men woman women people thing things want need see seen look looks like just get gets got going come comes came give gives gave find found tell told work works need help show shows shown real true full high low next three four five via when while where which whose would could should been being did does doing done says said say").split(" "));
 const terms = s => String(s || "").toLowerCase().replace(/https?:\/\/\S+/g, " ").replace(/[^a-z0-9à-ÿ' ]/g, " ").split(/\s+/).map(w => w.replace(/^'+|'+$/g, "")).filter(w => w.length > 2 && w.length < 24 && !STOP.has(w) && !/^\d+$/.test(w));
 const CREDIT = /(?:^|\n|\||•)\s*(?:directed by|director|dir\.|production company|prod\.? co\.?|agency|creative director|dp|director of photography|cinematographer)\s*[:\-–—]?\s*([^\n|•·,/()]{3,40})/gi;
-const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains|remarks|keynote|debate|honest|bootcamp|webinar|summit|panel|earnings|recap|preview show|press|fights 20\d\d|\bgoat\b|what if)/i;
+const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains|remarks|keynote|debate|honest|bootcamp|webinar|summit|panel|earnings|recap|preview show|press|fights 20\d\d|\bgoat\b|what if|official audio|\baudio\b|visuali[sz]er|deep dive|starter pack|ultimate team|featurette|on set|closet picks|cheat sheet|aipcon|conference|guide|tips|gameplay|pre-?order|bundle|dlc|season pass|patch notes|update|unboxing|what it cost|explained|how we|q\&a)/i;
 
 const tw = {}, df = {}, credits = new Set(), seedCh = new Map(), queries = [];
 const recs = new Map(); // yt -> {card, via:Set, hops}
@@ -146,9 +146,9 @@ console.log("3) uploads from channels that make/curate this kind of work");
 const AUTHORS = /^(aimé leon dore|palantir|justice|dollar shave club|coinbase|criterion|bfi|ea sports fc|away|gibson hazard|fuckinggoodmovies|the world's best ads)$/i;
 // hand-picked: brands, directors, labels and curators in the spirit of the references
 const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland", "@newbalance",
-  "@salomon", "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@onrunning", "@beatsbydre", "@highsnobiety", "@nothing",
+  "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@beatsbydre", "@highsnobiety", "@NothingTech", "@Jordan",
   "@A24", "@NEON", "@mubi", "@FocusFeatures", "@shortoftheweek", "@NOWNESS", "@CharliXCX", "@tylerthecreator", "@FKAtwigs", "@kendricklamar",
-  "@stussy", "@carharttwip", "@kith", "@Corteiz", "@RockstarGamesNOT"].filter(h => !/NOT$/.test(h));
+  "@carharttwip", "@kith"].filter(h => !/NOT$/.test(h));
 const sources = [...[...seedCh].filter(([, n]) => AUTHORS.test(n)).map(([id, n]) => ({ url: "https://www.youtube.com/channel/" + id + "/videos?hl=en&gl=US", name: n, root: "ch:" + id })),
   ...QUALITY.map(h => ({ url: "https://www.youtube.com/" + h + "/videos?hl=en&gl=US", name: "", root: "ch:" + h }))];
 await pool(sources, 3, async src => {
@@ -162,7 +162,7 @@ await pool(sources, 3, async src => {
 });
 
 console.log("4) searches: the people credited on your references + your themes");
-const qs = [...credits].slice(0, 40).map(c => ['"' + c + '"', "more by " + c]);
+const qs = [...credits].filter(c => c.trim().split(/\s+/).length >= 2).slice(0, 40).map(c => ['"' + c + '"', "more by " + c]);
 await pool(qs, 2, async ([q, label]) => {
   const page = await get("https://www.youtube.com/results?hl=en&gl=US&sp=EgIQAQ%253D%253D&search_query=" + encodeURIComponent(q));
   const data = jsonAfter(page, "ytInitialData = "); if (!data) return;
@@ -182,7 +182,7 @@ for (const { c, via, hop, root, roots } of recs.values()) {
   const fromTrusted = [...roots].some(x => trusted.has(x));
   const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short|presents|introducing|collection|ss\d\d|fw\d\d|aw\d\d)/i;
   const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:") && !String(x).startsWith("ch:")).length, n = Math.min(k, 4);
-  const byCredit = [...roots].some(x => String(x).startsWith("q:") && terms(String(x).slice(10)).some(w => (c.title + " " + c.ch).toLowerCase().includes(w)));
+  const byCredit = [...roots].some(x => String(x).startsWith("q:") && (c.title + " " + c.ch).toLowerCase().includes(String(x).slice(10).toLowerCase().replace(/^the /, "")));
   if (!FILMY.test(c.title) && !(fromTrusted && c.sec >= 45)) continue;   // a film, ad, trailer, title sequence, scene or music video
   if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|compilation|rotten tomatoes|one media|kinocheck|fandango|trailer ?(feed|hub|zone)|movie ?trailers? source|filmselect|joblo)/i.test(c.ch)) continue;
   // tied to your taste: a trusted channel, next to 2+ of your references, or by someone credited on them

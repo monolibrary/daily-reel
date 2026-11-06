@@ -74,7 +74,7 @@ function cards(data) {
 }
 
 /* ---------- taste profile from the references ---------- */
-const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two launch scene scenes clip clips movie movies movieclips 1080p 720p 4k remastered intro opening title titles sequence credits official audio extended exclusive coming soon best ever great").split(" "));
+const STOP = new Set(("the a an and of for in on to with by from x feat ft official video videos film films full hd 4k uhd new music short brand campaign commercial ad ads this that you your our we are is it its at as be was will can all more out up get got just now here not but or so if my me i us how what who why when where http https www com youtube instagram tiktok twitter facebook follow subscribe channel watch link links shop available listen stream streaming spotify apple directed director producer production produced company agency creative credits credit starring song editor edit edited dop cinematography color colour grade sound design presents present introducing trailer teaser version cut part one two launch scene scenes clip clips movie movies movieclips 1080p 720p 4k remastered intro opening title titles sequence credits official audio extended exclusive coming soon best ever great about welcome has have had many much don't doesn't didn't can't won't content his her him she they them their there then than these those into over under after before again very really most some any each every other only own same such too also back still even well way make made makes take takes know new now day days year years time times world first last long little big old right left good bad end life love man men woman women people thing things want need see seen look looks like just get gets got going come comes came give gives gave find found tell told work works need help show shows shown real true full high low next three four five via when while where which whose would could should been being did does doing done says said say").split(" "));
 const terms = s => String(s || "").toLowerCase().replace(/https?:\/\/\S+/g, " ").replace(/[^a-z0-9à-ÿ' ]/g, " ").split(/\s+/).map(w => w.replace(/^'+|'+$/g, "")).filter(w => w.length > 2 && w.length < 24 && !STOP.has(w) && !/^\d+$/.test(w));
 const CREDIT = /(?:^|\n|\||•)\s*(?:directed by|director|dir\.|production company|prod\.? co\.?|agency|creative director|dp|director of photography|cinematographer)\s*[:\-–—]?\s*([^\n|•·,/()]{3,40})/gi;
 const SLOP = /(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|meme|fan ?made|fan edit|parody|recreat|i made|i tried|tier list|\bvs\.?\b|live stream|livestream|gameplay|walkthrough|let'?s play|news|stock|earnings|crypto|giveaway|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|\bbts\b|bloopers|ranked|best of|\d+ (best|funniest)|full match|highlights|talks? about|talk show|letterman|kimmel|fallon|colbert|late show|tonight show|press conference|junket|interview|q&a|podcast|reveals|share their|on set with|explains|remarks|keynote|debate|honest|bootcamp|webinar|summit|panel|earnings|recap|preview show|press|fights 20\d\d|\bgoat\b|what if)/i;
@@ -129,7 +129,7 @@ await pool(SWIPE, 4, async id => {
 });
 const T = Object.fromEntries(Object.entries(tw).filter(([t, n]) => df[t] >= 2 || n >= 5).map(([t, n]) => [t, Math.log(1 + n) * (1 + Math.log(df[t]))]).sort((a, b) => b[1] - a[1]).slice(0, 160));
 const sim = (title, extra = "") => { const ws = [...terms(title).map(w => [w, 2]), ...terms(extra).map(w => [w, .5])]; let s = 0; const got = new Set(); ws.forEach(([w, k]) => { if (T[w] && !got.has(w)) { s += T[w] * k; got.add(w); } }); return s / Math.sqrt(ws.length + 8); };
-console.log("   taste terms:", Object.keys(T).slice(0, 15).join(", "));
+console.log("   taste terms:", Object.keys(T).slice(0, 40).join(", "));
 console.log("   credits:", [...credits].slice(0, 12).join(" | "));
 
 for (const v of ["871675519", "1073127699", "1056023905", "409128263", "1115121708"]) {
@@ -160,7 +160,7 @@ await pool(qs, 2, async ([q, label]) => {
 /* ---------- score + filter ---------- */
 const curated = new Set(library.map(v => v.yt).filter(Boolean));
 const seedNames = new Set([...seedCh.values()].map(n => n.toLowerCase()));
-const generic = new Set([...chSeeds].filter(([ch, ids]) => ids.size >= 5 && !seedNames.has(ch.toLowerCase())).map(([ch]) => ch));
+const generic = new Set([...chSeeds].filter(([ch, ids]) => ids.size >= 4 && !seedNames.has(ch.toLowerCase())).map(([ch]) => ch));
 console.log("   generic filler channels (ignored):", [...generic].slice(0, 25).join(" | "));
 const out = [];
 for (const { c, via, hop, root, roots } of recs.values()) {
@@ -170,11 +170,12 @@ for (const { c, via, hop, root, roots } of recs.values()) {
   const fromSeedCh = seedNames.has((c.ch || "").toLowerCase());
   const FILMY = /(trailer|teaser|official|film|commercial|\bads?\b|advert|spot|campaign|title sequence|opening|credits|intro|scene|clip|music video|launch|promo|anthem|short)/i;
   if (fromSeedCh && hop === 1 && !FILMY.test(c.title) && sim(c.title, c.ch) < .8) continue;   // channel uploads must be films/ads, not talks or recaps
-  const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:")).length, n = Math.min(k, 4);
-  const byCredit = [...roots].some(x => String(x).startsWith("q:"));
-  // a find must be tied to your references: from their channels, next to 2+ of them,
-  // directly next to one AND sharing its subject, or a search for someone credited on them
-  const ok = fromSeedCh || n >= 2 || (hop === 1 && m >= .6) || (byCredit && m >= .3);
+  const m = sim(c.title, c.ch), k = [...roots].filter(x => !String(x).startsWith("q:") && !String(x).startsWith("ch:")).length, n = Math.min(k, 4);
+  const byCredit = [...roots].some(x => String(x).startsWith("q:") && terms(String(x).slice(10)).some(w => (c.title + " " + c.ch).toLowerCase().includes(w)));
+  if (!FILMY.test(c.title)) continue;                                  // must be a film, ad, trailer, title sequence, scene or music video
+  if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|clips? channel|compilation)/i.test(c.ch) && !fromSeedCh) continue;
+  // tied to your references: next to 2+ of them, directly next to one AND sharing its subject, or by someone credited on them
+  const ok = n >= 2 || (hop === 1 && m >= .6) || byCredit;
   if (!ok) continue;
   if ((c.views || 0) > 25e6 && n < 3 && !fromSeedCh) continue;      // mega-popular stuff YouTube shows beside everything
   const s = m * 1.4 + n * .9 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .5 : 0) + Math.log10((c.views || 0) + 10) * .1 + (c.age < 60 ? .5 : 0);

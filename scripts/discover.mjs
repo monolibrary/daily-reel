@@ -146,7 +146,7 @@ console.log("3) uploads from channels that make/curate this kind of work");
 const AUTHORS = /^(aimé leon dore|palantir|justice|dollar shave club|coinbase|criterion|bfi|ea sports fc|away|gibson hazard|fuckinggoodmovies|the world's best ads)$/i;
 // hand-picked: brands, directors, labels and curators in the spirit of the references
 const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland", "@newbalance",
-  "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@beatsbydre", "@highsnobiety", "@NothingTech", "@Jordan",
+  "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@beatsbydre", "@highsnobiety", "@Jordan",
   "@A24", "@NEON", "@mubi", "@FocusFeatures", "@shortoftheweek", "@NOWNESS", "@CharliXCX", "@tylerthecreator", "@FKAtwigs", "@kendricklamar",
   "@carharttwip", "@kith",
   // fashion & luxury
@@ -154,7 +154,7 @@ const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@
   // cars
   "@MercedesBenz", "@BMW", "@audi", "@Ferrari", "@Lamborghini", "@Polestar",
   // brands with strong film work
-  "@Guinness", "@heineken", "@pepsi", "@CocaCola", "@Spotify", "@Airbnb", "@samsung", "@Google", "@Xbox", "@Ubisoft",
+  "@Guinness", "@pepsi", "@CocaCola", "@Spotify", "@Airbnb", "@samsung", "@Google", "@Xbox", "@Ubisoft",
   // film & series studios (trailers, title sequences)
   "@WarnerBrosPictures", "@UniversalPictures", "@SonyPictures", "@ParamountPictures", "@Lionsgate", "@SearchlightPictures", "@Netflix", "@AppleTV", "@PrimeVideo", "@hbo",
   // music artists with directed videos

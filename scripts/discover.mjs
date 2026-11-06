@@ -148,14 +148,37 @@ const AUTHORS = /^(aimé leon dore|palantir|justice|dollar shave club|coinbase|c
 const QUALITY = ["@nike", "@jumpman23", "@nikefootball", "@adidas", "@Apple", "@PlayStation", "@palantirtech", "@squarespace", "@timberland", "@newbalance",
   "@arcteryx", "@Porsche", "@bottegaveneta", "@loewe", "@jacquemus", "@beatsbydre", "@highsnobiety", "@NothingTech", "@Jordan",
   "@A24", "@NEON", "@mubi", "@FocusFeatures", "@shortoftheweek", "@NOWNESS", "@CharliXCX", "@tylerthecreator", "@FKAtwigs", "@kendricklamar",
-  "@carharttwip", "@kith"].filter(h => !/NOT$/.test(h));
+  "@carharttwip", "@kith",
+  // fashion & luxury
+  "@gucci", "@prada", "@Burberry", "@Balenciaga", "@Dior", "@LouisVuitton", "@CHANEL", "@Moncler", "@RIMOWA", "@Cartier", "@Rolex", "@OMEGA",
+  // cars
+  "@MercedesBenz", "@BMW", "@audi", "@Ferrari", "@Lamborghini", "@Polestar",
+  // brands with strong film work
+  "@Guinness", "@heineken", "@pepsi", "@CocaCola", "@Spotify", "@Airbnb", "@samsung", "@Google", "@Xbox", "@Ubisoft",
+  // film & series studios (trailers, title sequences)
+  "@WarnerBrosPictures", "@UniversalPictures", "@SonyPictures", "@ParamountPictures", "@Lionsgate", "@SearchlightPictures", "@Netflix", "@AppleTV", "@PrimeVideo", "@hbo",
+  // music artists with directed videos
+  "@DaftPunk", "@TheWeeknd", "@travisscott", "@rosalia", "@gorillaz", "@asaprocky", "@BadBunny", "@stromae", "@LittleSimz", "@skepta", "@billieeilish", "@DuaLipa"];
 const sources = [...[...seedCh].filter(([, n]) => AUTHORS.test(n)).map(([id, n]) => ({ url: "https://www.youtube.com/channel/" + id + "/videos?hl=en&gl=US", name: n, root: "ch:" + id })),
   ...QUALITY.map(h => ({ url: "https://www.youtube.com/" + h + "/videos?hl=en&gl=US", name: "", root: "ch:" + h }))];
 await pool(sources, 3, async src => {
   const page = await get(src.url);
   const data = jsonAfter(page, "var ytInitialData = ") || jsonAfter(page, "ytInitialData = "); if (!data) return;
   const name = src.name || (page.match(/<meta property="og:title" content="([^"]+)"/) || [])[1] || src.root.slice(3);
-  const list = cards(data).slice(0, 30);
+  let list = cards(data);
+  const key = (page.match(/"INNERTUBE_API_KEY":"([^"]+)"/) || [])[1], ver = (page.match(/"INNERTUBE_CLIENT_VERSION":"([^"]+)"/) || [])[1] || "2.20250101.00.00";
+  let cont = data, pages = 0;
+  while (key && pages < 3) {                  // up to ~120 uploads per channel
+    let tok = ""; walk(cont, o => { if (!tok && o.continuationCommand?.token) tok = o.continuationCommand.token; });
+    if (!tok) break;
+    stats.req++;
+    try {
+      const r = await fetch("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false&key=" + key, { method: "POST", headers: { ...HEADERS, "content-type": "application/json" },
+        body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: ver, hl: "en", gl: "US" } }, continuation: tok }) });
+      cont = await r.json(); const more = cards(cont); if (!more.length) break; list = list.concat(more); pages++;
+    } catch { stats.fail++; break; }
+    await sleep(200);
+  }
   list.forEach(c => addRec({ ...c, ch: name }, "new from " + name, 1, src.root));
   trusted.add(src.root);
   console.log("   ", name, "uploads:", list.length);
@@ -197,13 +220,13 @@ out.sort((a, b) => b.s - a.s);
 // diversity: round-robin across the references each find traces back to (max 30 each),
 // max 6 per channel, max 4 per film/title family
 const byRoot = new Map(); out.forEach(v => { if (!byRoot.has(v.root)) byRoot.set(v.root, []); byRoot.get(v.root).push(v); });
-const roots = [...byRoot.values()].map(l => l.slice(0, 90)).sort((a, b) => b[0].s - a[0].s);
+const roots = [...byRoot.values()].map(l => l.slice(0, 200)).sort((a, b) => b[0].s - a[0].s);
 const perCh = {}, perFam = {}, keep = [];
 const fam = t => terms(t).filter(w => T[w]).slice(0, 2).sort().join(" ") || terms(t).slice(0, 2).join(" ");
-for (let i = 0; i < 90; i++) for (const l of roots) {
+for (let i = 0; i < 200; i++) for (const l of roots) {
   const v = l[i]; if (!v) continue;
   const f = fam(v.title), ch = v.ch.toLowerCase();
-  if ((perCh[ch] || 0) >= 14 || (f && (perFam[f] || 0) >= 8)) continue;
+  if ((perCh[ch] || 0) >= 60 || (f && (perFam[f] || 0) >= 8)) continue;
   perCh[ch] = (perCh[ch] || 0) + 1; if (f) perFam[f] = (perFam[f] || 0) + 1;
   keep.push({ ...v, s: +(30 - keep.length / 60 + v.s / 10).toFixed(3) });
 }
@@ -212,4 +235,8 @@ console.log(`done: ${recs.size} candidates → ${keep.length} kept · requests $
 console.log("top 40:"); keep.slice(0, 40).forEach(v => console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60), "| via", v.via.slice(0, 40)));
 console.log("random sample:"); for (let i = 0; i < 40 && keep.length; i++) { const v = keep[Math.floor(Math.random() * keep.length)]; console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60)); }
 if (keep.length < 50 && prev.items.length > keep.length) { console.log("too few results this run, keeping the previous stock"); process.exit(0); }
-fs.writeFileSync("discover.json", JSON.stringify({ updated: new Date().toISOString(), items: keep }) + "\n");
+const fresh = new Set(keep.map(v => v.yt));
+const carried = (prev.items || []).filter(v => !fresh.has(v.yt) && !SLOP.test(v.title || "")).map(v => ({ ...v, s: +Math.max(0, (v.s || 0) - .5).toFixed(3) }));
+const all = keep.concat(carried).slice(0, 6000);
+console.log("stock:", keep.length, "this run +", carried.length, "carried over =", all.length);
+fs.writeFileSync("discover.json", JSON.stringify({ updated: new Date().toISOString(), items: all }) + "\n");

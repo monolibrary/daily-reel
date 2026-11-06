@@ -824,7 +824,7 @@ async function fetchRound(){
       tags:terms(sn.title).slice(0,4),note:"",dir:"",q:src.label,kind:src.kind,views,score:+(s+Math.random()*.6).toFixed(3),at:now};
   });
   const have=new Set(livePool.map(v=>v.yt));
-  livePool=livePool.concat(out.filter(v=>!have.has(v.yt)&&have.add(v.yt))).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,1500);LS.set("dr_livepool5",livePool);
+  livePool=livePool.concat(out.filter(v=>!have.has(v.yt)&&have.add(v.yt))).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,6000);LS.set("dr_livepool5",livePool);
   return out.length;
 }
 /* the prebuilt stock: discover.json is rebuilt every 3 hours on GitHub from YouTube's own
@@ -840,7 +840,7 @@ async function loadDiscover(){
       .map(x=>({id:"yt-"+x.yt,live:true,yt:x.yt,brand:String(x.ch||"YouTube").slice(0,60),title:String(x.title||"").slice(0,140),
         year:x.age<9000?new Date(Date.now()-x.age*864e5).getFullYear():"",cat:"live",len:x.sec?fmtLen(x.sec):"",tags:terms(x.title).slice(0,4),note:"",dir:"",
         q:/^(new from|more by) /.test(x.via||"")?x.via:"up next beside “"+x.via+"”",kind:"rec",views:x.views||0,score:+((x.s||0)+Math.random()*1.2).toFixed(3),at:Date.now()}));
-    if(add.length){livePool=livePool.concat(add).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,1500);LS.set("dr_livepool5",livePool)}
+    if(add.length){livePool=livePool.concat(add).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,6000);LS.set("dr_livepool5",livePool)}
     return add.length;
   }catch(e){return 0}
 }

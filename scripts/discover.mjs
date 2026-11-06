@@ -180,7 +180,21 @@ await pool(sources, 3, async src => {
 });
 
 console.log("4) searches: the people credited on your references + your themes");
-const qs = [...credits].filter(c => c.trim().split(/\s+/).length >= 2).slice(0, 40).map(c => ['"' + c + '"', "more by " + c]);
+const EXTRA = [
+  "opening title sequence", "main title sequence film", "tv series opening credits", "title sequence design",
+  "guy ritchie scene", "snatch scene", "lock stock and two smoking barrels scene", "the gentlemen scene", "rocknrolla scene",
+  "tarantino scene 4k", "scorsese scene", "goodfellas scene", "casino 1995 scene", "fincher opening scene", "la haine scene", "gaspar noe",
+  "trainspotting scene", "drive 2011 scene", "heat 1995 scene", "uncut gems scene", "good time safdie", "sicario scene",
+  "super bowl commercial 2026", "super bowl commercial 2025", "cannes lions grand prix film", "best commercials of all time",
+  "nike commercial", "apple commercial", "jordan brand film", "fashion film campaign", "luxury brand film", "car commercial cinematic",
+  "romain gavras", "spike jonze commercial", "michel gondry music video", "hiro murai music video", "jonathan glazer commercial",
+  "dave meyers music video", "ian pons jewell", "kim gehrig commercial", "wes anderson commercial", "harmony korine commercial",
+  "nicolas winding refn commercial", "director's cut commercial", "music video directed by", "short film cinematic",
+  "fifa official launch trailer", "playstation commercial", "xbox commercial cinematic", "call of duty live action trailer",
+  "a24 official trailer", "neon official trailer", "mubi official trailer", "criterion trailer",
+  "dollar shave club ad", "coinbase ad", "liquid death ad", "heineken commercial", "guinness commercial", "old spice commercial"];
+const qs = [...[...credits].filter(c => c.trim().split(/\s+/).length >= 2).slice(0, 40).map(c => ['"' + c + '"', "more by " + c]),
+  ...EXTRA.map(q => [q, "search: " + q])];
 await pool(qs, 2, async ([q, label]) => {
   const page = await get("https://www.youtube.com/results?hl=en&gl=US&sp=EgIQAQ%253D%253D&search_query=" + encodeURIComponent(q));
   const data = jsonAfter(page, "ytInitialData = "); if (!data) return;
@@ -209,7 +223,8 @@ for (const { c, via, hop, root, roots } of recs.values()) {
   if (/(how-?to|instructions|guests|a day with|race|championship|nationals|highlights|\blive\b|recap|interview|reaction|portrait series|unveil|first laps|behind the design|making of|in conversation)/i.test(c.title)) continue;   // a film, ad, trailer, title sequence, scene or music video
   if (/(celeb|news|\btv\b|fox|cnn|nbc|abc|cbs|late night|podcast|talk|show$|reacts?|daily dose|compilation|rotten tomatoes|one media|kinocheck|fandango|trailer ?(feed|hub|zone)|movie ?trailers? source|filmselect|joblo)/i.test(c.ch)) continue;
   // tied to your taste: a trusted channel, next to 2+ of your references, or by someone credited on them
-  const ok = fromTrusted || n >= 2 || byCredit;
+  const fromSearch = [...roots].some(x => String(x).startsWith("q:search: "));   // targeted taste searches (hand-reviewed before they reach the site)
+  const ok = fromTrusted || n >= 2 || byCredit || fromSearch;
   if (!ok) continue;
   const fromSeedCh = fromTrusted;
   if ((c.views || 0) > 25e6 && n < 3 && !fromSeedCh) continue;      // mega-popular stuff YouTube shows beside everything

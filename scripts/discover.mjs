@@ -88,12 +88,24 @@ function addRec(c, via, hop) {
   if (!r.c.sec && c.sec) r.c = { ...r.c, ...c };
   recs.set(c.yt, r);
 }
+const chSeeds = new Map(); // channel name -> Set of reference ids it appeared beside
+function seenWith(c, id) { const k = c.ch || "?"; if (!chSeeds.has(k)) chSeeds.set(k, new Set()); chSeeds.get(k).add(id); }
 async function watch(id) {
   const page = await get("https://www.youtube.com/watch?v=" + id + "&hl=en&gl=US");
   if (!page) return null;
-  const player = jsonAfter(page, "ytInitialPlayerResponse = ") || {};
-  const data = jsonAfter(page, "ytInitialData = ") || {};
-  const vd = player.videoDetails || {};
+  const player = jsonAfter(page, "var ytInitialPlayerResponse = ") || jsonAfter(page, "ytInitialPlayerResponse = ") || {};
+  const data = jsonAfter(page, "var ytInitialData = ") || jsonAfter(page, "ytInitialData = ") || {};
+  const vd = { ...(player.videoDetails || {}) };
+  // fall back to the page's own info panels when the player data is withheld
+  walk(data.contents?.twoColumnWatchNextResults?.results || {}, o => {
+    if (o.videoPrimaryInfoRenderer && !vd.title) vd.title = txt(o.videoPrimaryInfoRenderer.title);
+    if (o.videoSecondaryInfoRenderer) {
+      const sr = o.videoSecondaryInfoRenderer;
+      if (!vd.shortDescription) vd.shortDescription = sr.attributedDescription?.content || txt(sr.description);
+      const own = sr.owner?.videoOwnerRenderer;
+      if (own && !vd.channelId) { vd.channelId = own.navigationEndpoint?.browseEndpoint?.browseId || ""; vd.author = txt(own.title); }
+    }
+  });
   return { vd, related: cards(data.contents?.twoColumnWatchNextResults?.secondaryResults || data) };
 }
 
@@ -101,6 +113,9 @@ console.log("1) reference videos:", SWIPE.length);
 await pool(SWIPE, 4, async id => {
   const w = await watch(id); if (!w) return;
   const { vd, related } = w;
+  if (!vd.title || !vd.author) {             // oEmbed always answers: title + channel
+    try { const o = JSON.parse(await get("https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + id))); vd.title = vd.title || o.title; vd.author = vd.author || o.author_name; } catch {}
+  }
   const bag = {};
   terms(vd.title).forEach(t => bag[t] = (bag[t] || 0) + 3);
   (vd.keywords || []).slice(0, 20).forEach(k => terms(k).forEach(t => bag[t] = (bag[t] || 0) + 2));
@@ -109,8 +124,8 @@ await pool(SWIPE, 4, async id => {
   let m; CREDIT.lastIndex = 0;
   while ((m = CREDIT.exec(vd.shortDescription || ""))) { const n = m[1].trim().replace(/\s+/g, " ").replace(/[.:;\-–—]+$/, ""); if (n.split(" ").length <= 5 && !/http|www|\.com|@|#/i.test(n)) credits.add(n); }
   if (vd.channelId) seedCh.set(vd.channelId, vd.author || "");
-  related.forEach(c => addRec(c, (vd.title || id).slice(0, 80), 1));
-  console.log("  ", id, "|", (vd.title || "?").slice(0, 50), "| related:", related.length);
+  related.forEach(c => { addRec(c, (vd.title || id).slice(0, 80), 1); seenWith(c, id); });
+  console.log("  ", id, "|", (vd.author || "?").slice(0, 22), "|", (vd.title || "?").slice(0, 55), "| desc", (vd.shortDescription || "").length, "| related:", related.length);
 });
 const T = Object.fromEntries(Object.entries(tw).filter(([t, n]) => df[t] >= 2 || n >= 5).map(([t, n]) => [t, Math.log(1 + n) * (1 + Math.log(df[t]))]).sort((a, b) => b[1] - a[1]).slice(0, 160));
 const sim = (title, extra = "") => { const ws = [...terms(title).map(w => [w, 2]), ...terms(extra).map(w => [w, .5])]; let s = 0; const got = new Set(); ws.forEach(([w, k]) => { if (T[w] && !got.has(w)) { s += T[w] * k; got.add(w); } }); return s / Math.sqrt(ws.length + 8); };
@@ -144,18 +159,24 @@ await pool(qs, 3, async ([q, label]) => {
 
 /* ---------- score + filter ---------- */
 const curated = new Set(library.map(v => v.yt).filter(Boolean));
+const seedNames = new Set([...seedCh.values()].map(n => n.toLowerCase()));
+const generic = new Set([...chSeeds].filter(([ch, ids]) => ids.size >= 5 && !seedNames.has(ch.toLowerCase())).map(([ch]) => ch));
+console.log("   generic filler channels (ignored):", [...generic].slice(0, 25).join(" | "));
 const out = [];
 for (const { c, via, hop } of recs.values()) {
-  if (curated.has(c.yt) || SLOP.test(c.title) || !c.title) continue;
+  if (curated.has(c.yt) || SLOP.test(c.title) || !c.title || generic.has(c.ch)) continue;
   if (c.sec && (c.sec < 30 || c.sec > 420)) continue;          // 30s – 7min
-  if (!c.sec && hop !== 1) continue;                           // unknown length only from trusted channel feeds
-  const s = sim(c.title, c.ch) + via.size * 1.2 + (hop === 1 ? .8 : hop === 2 ? .3 : 0) + Math.log10((c.views || 0) + 10) * .2 + (c.age < 60 ? .7 : 0);
-  if (hop === 3 && sim(c.title, c.ch) < .5 && via.size < 2) continue;  // searches must look like your taste
+  if (!c.sec && hop !== 1) continue;                           // unknown length only from channel feeds
+  const fromSeedCh = seedNames.has((c.ch || "").toLowerCase());
+  const m = sim(c.title, c.ch), n = Math.min(via.size, 4);
+  if (!fromSeedCh && m < .45 && !(n >= 2 && hop <= 2)) continue;   // must look like your taste, come from your channels, or sit beside 2+ of your references
+  const s = m * 1.4 + n * .5 + (fromSeedCh ? 1.5 : 0) + (hop === 1 ? .4 : 0) + Math.log10((c.views || 0) + 10) * .15 + (c.age < 60 ? .5 : 0);
   out.push({ yt: c.yt, title: c.title.slice(0, 140), ch: (c.ch || "").slice(0, 60), sec: c.sec || 0, views: c.views || 0, age: Math.round(c.age), via: [...via][0], n: via.size, s: +s.toFixed(3) });
 }
 out.sort((a, b) => b.s - a.s);
 const keep = out.slice(0, 1200);
 console.log(`done: ${recs.size} candidates → ${keep.length} kept · requests ${stats.req}, failed ${stats.fail}`);
-console.log("top 15:"); keep.slice(0, 15).forEach(v => console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60), "| via", v.via.slice(0, 40)));
+console.log("top 40:"); keep.slice(0, 40).forEach(v => console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60), "| via", v.via.slice(0, 40)));
+console.log("random sample:"); for (let i = 0; i < 15 && keep.length; i++) { const v = keep[Math.floor(Math.random() * keep.length)]; console.log("  ", v.s, "|", v.ch, "|", v.title.slice(0, 60)); }
 if (keep.length < 50 && prev.items.length > keep.length) { console.log("too few results this run, keeping the previous stock"); process.exit(0); }
 fs.writeFileSync("discover.json", JSON.stringify({ updated: new Date().toISOString(), items: keep }) + "\n");

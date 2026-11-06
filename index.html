@@ -562,7 +562,7 @@ document.addEventListener("click",e=>{
   const sc=t.closest("[data-scat]");if(sc){savedCat=sc.dataset.scat;renderSaved();return}
   const mo=t.closest("[data-more]");if(mo){const v=findV(mo.dataset.more);(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.min((prefs.boost[tg]||0)+1,6));prefs.boost["cat:"+v.cat]=Math.min((prefs.boost["cat:"+v.cat]||0)+1,6);savePrefs();toast("Got it. More like this coming up.");closeModal();if(view==="feed")renderFeed();return}
   const hd=t.closest("[data-hide]");if(hd){prefs.hidden.push(hd.dataset.hide);const v=findV(hd.dataset.hide);
-    if(v&&v.live&&v.brand){blockedCh.add(v.brand);LS.set("dr_blockch",[...blockedCh]);livePool=livePool.filter(x=>x.brand!==v.brand);LS.set("dr_livepool2",livePool)}(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
+    if(v&&v.live&&v.brand){blockedCh.add(v.brand);LS.set("dr_blockch",[...blockedCh]);livePool=livePool.filter(x=>x.brand!==v.brand);LS.set("dr_livepool3",livePool)}(v.tags||[]).forEach(tg=>prefs.boost[tg]=Math.max((prefs.boost[tg]||0)-.5,-3));savePrefs();toast("Hidden. Showing less like this.");closeModal();if(view==="feed")renderFeed();return}
   const op=t.closest("[data-open]");if(op){flushNote();openModal(op.dataset.open);return}
   if(t.closest("a"))return;
   const card=t.closest(".card,.mini");if(card&&!t.closest(".modal")){openModal(card.dataset.id)}
@@ -593,7 +593,7 @@ const LIVE_Q=["cinematic brand film","luxury fashion film","Nike commercial","Ap
  "Vimeo staff pick short film","short film staff pick","AI generated music video official","AI brand film","sports brand film","Heineken commercial",
  "Coca-Cola commercial","IKEA ad","Volvo commercial","BMW film","Audi commercial","Hermès film","Balenciaga campaign","Bottega Veneta film",
  "Arc'teryx film","Patagonia film","Lego commercial","Netflix promo","HBO promo","A24 trailer","Apple Watch ad","iPhone ad","Mac ad"];
-let livePool=LS.get("dr_livepool2",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
+let livePool=LS.get("dr_livepool3",[]); const liveSeen=new Set(LS.get("dr_liveseen",[])); const liveShown={};
 let liveBusy=null, liveDead=false;
 /* quality gate: only real ads / brand films / music videos / shorts */
 const SLOP=/(#shorts|\bshorts?\b|reaction|react(s|ing)? to|review|vlog|tutorial|how to|how i|unboxing|prank|challenge|tiktok|funny|compilation|top \d+|\branking|explained|breakdown|analysis|podcast|interview|asmr|mukbang|meme|fan ?made|fan edit|parody|recreat|i made|i tried|trying|tier list|\bvs\.?\b|try not to|live stream|livestream|gameplay|walkthrough|lets play|let's play|news|stock|earnings|crypto|giveaway|subscribe|what i eat|day in (the|my) life|grwm|haul|lyrics|lyric video|karaoke|cover by|nightcore|sped up|slowed|full movie|episode|ep\.? ?\d|part \d|course|lesson|masterclass|case study|making of|behind the scenes|bts|bloopers|ranked|worst|best of|every .* ad|all .* ads|ads? compilation|\d+ (best|funniest))/i;
@@ -606,7 +606,7 @@ function qualityOK(it,x,q){
   if(sec<30||sec>240)return false;                                   // 30s – 4min
   if(x.contentDetails.definition!=="hd")return false;                // HD only
   const pw=+(x.player&&x.player.embedWidth)||0, ph=+(x.player&&x.player.embedHeight)||0;
-  if(pw&&ph&&ph>=pw*.95)return false;                                // no vertical / square clips
+  if(!pw||!ph||pw/ph<1.3)return false;                               // widescreen only: no vertical, square or unknown shape
   if(SLOP.test(t)||/#shorts/i.test(desc))return false;
   if(x.snippet&&BADCAT.has(x.snippet.categoryId))return false;
   if(blockedCh.has(ch))return false;
@@ -659,7 +659,7 @@ function fetchLive(q){
           year:+(sn.publishedAt||"").slice(0,4)||"",cat:"live",len:fmtLen(sec),tags,note:"",dir:"",q,views:+(x.statistics&&x.statistics.viewCount)||0});
       });
       for(let i=out.length-1;i>0;i--){const k=Math.floor(Math.random()*(i+1));[out[i],out[k]]=[out[k],out[i]]}
-      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool2",livePool);
+      livePool=livePool.concat(out).slice(-200);LS.set("dr_livepool3",livePool);
       return out.length;
     }catch(e){return 0}finally{liveBusy=null}
   })();
@@ -667,7 +667,7 @@ function fetchLive(q){
 }
 function takeLive(){
   const v=livePool.shift();
-  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool2",livePool);
+  if(v){liveSeen.add(v.yt);liveShown[v.id]=v;LS.set("dr_livepool3",livePool);
     const arr=[...liveSeen];LS.set("dr_liveseen",arr.slice(-3000))}
   if(livePool.length<12)fetchLive();
   return v;

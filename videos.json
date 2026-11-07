@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-06",
+ "updated": "2026-11-07",
  "videos": [
   {
    "id": "apple-1984",
@@ -1978,6 +1978,196 @@
    "dir": "Quentin Tarantino",
    "yt": "qbUz68h9BFo",
    "added": "2026-11-06",
+   "vimeo": ""
+  },
+  {
+   "id": "lord-of-war-bullet",
+   "brand": "Lord of War",
+   "title": "\"Life of a Bullet\" opening sequence",
+   "year": 2005,
+   "cat": "film",
+   "len": "3:30",
+   "tags": [
+    "title-sequence",
+    "one-shot",
+    "pov",
+    "vfx"
+   ],
+   "note": "A whole opening told from the point of view of a bullet, from factory to target. Pick an unexpected POV and follow it in one unbroken journey.",
+   "dir": "Andrew Niccol",
+   "yt": "RVDyoCWz0vM",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "chemical-brothers-star-guitar",
+   "brand": "The Chemical Brothers",
+   "title": "Star Guitar",
+   "year": 2002,
+   "cat": "music",
+   "len": "3:59",
+   "tags": [
+    "music-video",
+    "one-shot",
+    "rhythm",
+    "train"
+   ],
+   "note": "Gondry syncs every building, pole and tree passing a train window to a beat in the track. Choreograph the world to the music instead of cutting to it.",
+   "dir": "Michel Gondry",
+   "yt": "0S43IwBF0uM",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "daftpunk-da-funk",
+   "brand": "Daft Punk",
+   "title": "Da Funk",
+   "year": 1997,
+   "cat": "music",
+   "len": "5:35",
+   "tags": [
+    "music-video",
+    "character",
+    "new-york",
+    "deadpan"
+   ],
+   "note": "Spike Jonze ignores the song entirely and tells a deadpan short story about a dog-headed man in New York. A music video doesn't have to illustrate the track.",
+   "dir": "Spike Jonze",
+   "yt": "mmi60Bd4jSs",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "jamiroquai-virtual-insanity",
+   "brand": "Jamiroquai",
+   "title": "Virtual Insanity",
+   "year": 1996,
+   "cat": "music",
+   "len": "3:55",
+   "tags": [
+    "music-video",
+    "illusion",
+    "moving-floor",
+    "in-camera"
+   ],
+   "note": "Jonathan Glazer's moving-floor illusion: the set slides while the camera stays locked. One simple in-camera trick can carry a whole video.",
+   "dir": "Jonathan Glazer",
+   "yt": "4JkIs37a2JE",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "playstation-third-place",
+   "brand": "PlayStation",
+   "title": "The Third Place",
+   "year": 2000,
+   "cat": "ad",
+   "len": "1:02",
+   "tags": [
+    "surreal",
+    "black-white",
+    "lynch",
+    "dreamlike"
+   ],
+   "note": "David Lynch sells a console without showing it: a black-and-white dream of strange rooms and figures. Sell the feeling a product puts you in, not the product.",
+   "dir": "David Lynch",
+   "yt": "lVUtqv_bHRM",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "apple-rip-leon",
+   "brand": "Apple",
+   "title": "R.I.P. Leon",
+   "year": 2023,
+   "cat": "ad",
+   "len": "0:44",
+   "tags": [
+    "comedy",
+    "feature-ad",
+    "cannes-grand-prix",
+    "timing"
+   ],
+   "note": "Cannes Film Grand Prix 2023: a pet-sitter, a lizard playing dead and one regretted text. One relatable panic moment is enough to sell a feature.",
+   "dir": "Andreas Nilsson",
+   "yt": "YTiT-slkpzk",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "baby-driver-titles",
+   "brand": "Baby Driver",
+   "title": "Opening title sequence (\"Harlem Shuffle\")",
+   "year": 2017,
+   "cat": "film",
+   "len": "3:05",
+   "tags": [
+    "title-sequence",
+    "oner",
+    "music-sync",
+    "typography"
+   ],
+   "note": "Edgar Wright's coffee-run oner where song lyrics appear as graffiti and signs in the street. Hide your credits and lyrics inside the world you're filming.",
+   "dir": "Edgar Wright",
+   "yt": "zc85N4Gh44s",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "delonghi-brad-pitt-dogs",
+   "brand": "De'Longhi",
+   "title": "Hot or Cold, Always Perfetto — Brad Pitt & 16 dogs",
+   "year": 2026,
+   "cat": "ad",
+   "len": "1:47",
+   "tags": [
+    "celebrity",
+    "comedy",
+    "deadpan",
+    "subtitles"
+   ],
+   "note": "Spike Jonze gives 16 dogs subtitled opinions and lets Brad Pitt play the straight man. Deadpan plus one absurd rule beats a list of product features.",
+   "dir": "Spike Jonze",
+   "yt": "7K13bjG_kJ4",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "mr-oizo-flat-beat",
+   "brand": "Mr. Oizo",
+   "title": "Flat Beat (with Flat Eric)",
+   "year": 1999,
+   "cat": "music",
+   "len": "3:07",
+   "tags": [
+    "music-video",
+    "puppet",
+    "minimal",
+    "cult"
+   ],
+   "note": "A yellow puppet head-nodding in a car became a Levi's icon. A single, oddly specific character can be more memorable than any spectacle.",
+   "dir": "Quentin Dupieux",
+   "yt": "qmsbP13xu6k",
+   "added": "2026-11-07",
+   "vimeo": ""
+  },
+  {
+   "id": "athena-trailer",
+   "brand": "Netflix",
+   "title": "ATHENA — Official Trailer",
+   "year": 2022,
+   "cat": "film",
+   "len": "2:34",
+   "tags": [
+    "trailer",
+    "long-take",
+    "riot",
+    "french-cinema"
+   ],
+   "note": "Romain Gavras's riot epic, sold through huge choreographed long takes. Scale and unbroken movement make a trailer feel like an event.",
+   "dir": "Romain Gavras",
+   "yt": "vRunUkdkK8s",
+   "added": "2026-11-07",
    "vimeo": ""
   }
  ]
